@@ -10,7 +10,9 @@ Generate SEO lead sites for life insurance, mortgage and real estate in one comm
 
 | Doc | What's in it |
 |---|---|
-| **[docs/NEXT-STEPS.md](docs/NEXT-STEPS.md)** | Your step-by-step checklist from install to first revenue |
+| **[docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md)** | Click-by-click Windows setup with a status check after every part |
+| **[docs/CALL-SCRIPTS.md](docs/CALL-SCRIPTS.md)** | Call, voicemail and text scripts for life, real estate and mortgage leads, plus the partner pitch |
+| [docs/NEXT-STEPS.md](docs/NEXT-STEPS.md) | The Horry County launch plan, week by week |
 | [docs/PLAN.md](docs/PLAN.md) | Architecture, $50k/month math, verticals, SEO, compliance, Koinos, roadmap |
 | [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIEF.md) | The original project brief |
 | [koinos/README.md](koinos/README.md) | Optional on-chain settlement layer |
@@ -19,6 +21,9 @@ Generate SEO lead sites for life insurance, mortgage and real estate in one comm
 
 ## Admin panel (the easy way)
 
+**Windows:** double-click **`Start-ApexForge.cmd`** (first run installs everything). Double-click **`Sync-ApexForge.cmd`** to save your edits to GitHub and pull updates.
+
+**Any OS:**
 ```bash
 npm install
 npm run admin        # → http://127.0.0.1:4400
@@ -30,9 +35,10 @@ A local control panel for everything below, no terminal needed after this:
 - **Sites** — create sites; edit brand, cities + local facts, buyers, reviewer, colors; per-site launch checklist
 - **Pages & content** — every page with source, word count, compliance flags and review status; Markdown editor with live preview; write/regenerate pages with AI
 - **Build & publish** — build, local preview, deploy to Cloudflare, plus the one-time dashboard steps
-- **Leads** — pull from live sites, filter/search, call/email, set status, buyer, price and notes (syncs back to the live site), view consent proof, export CSV
+- **Leads** — pull from live sites, filter/search, a call-ready **quote sheet** (age, BMI, underwriting read, copy button) and a still-to-gather checklist, call/email, set status, buyer, price and notes (syncs back to the live site), view consent proof, export CSV
 - **Verticals** — edit services, FAQs, form fields, scoring rules and compliance rules (form view or raw JSON), or create a new vertical
 - **Settings** — AI keys/models with Ollama status, admin token generator, Cloudflare login + database setup, settlement mode
+- **Guides & scripts** — setup guide, call scripts and plan, printable
 - **Activity** — live logs of every build, deploy and content run
 
 It only listens on your own machine (127.0.0.1) and uses a per-launch token, so nothing on your network or other websites can reach it. It edits the same files and runs the same scripts as the CLI below, so you can mix both.

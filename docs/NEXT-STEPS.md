@@ -1,61 +1,46 @@
-# Next steps for the operator
+# Next steps — Horry County launch plan
 
-Work top to bottom. Each step says where to do it: **Admin** (the local control panel, `npm run admin`), **Terminal**, or **Outside** (a website or a decision).
+**Starting position:** licensed SC life agent · strong realtor network in Horry County · a few lender contacts · full-time job, so time is the constraint.
 
-## Day 1 — get it running on your PC (about 1 hour)
+**Plan:** launch the life insurance site first (you close those yourself), then real estate and mortgage once each partner agrees to be named in the consent box. You call every lead yourself at first to judge quality.
 
-- [ ] **Terminal:** install Node.js 20+ (nodejs.org) and Git.
-- [ ] **Terminal:** `git clone https://github.com/bawcejawn/ApexForge && cd ApexForge && npm install`
-- [ ] **Terminal:** `npm run admin`, then open http://127.0.0.1:4400
-- [ ] **Outside:** install Ollama (ollama.com). **Terminal:** `ollama pull llama3.1:8b`. The Admin → Settings page shows a green "Ollama running" pill when it's working.
-- [ ] **Admin → Activity → Run tests:** should end with `# pass 9`.
-- [ ] **Admin → Sites → Hill Country Life Quotes → Build & publish → Start preview**, open localhost:4321 and click around the sample site. This is what every site looks like.
+Detailed click-by-click instructions with status checks are in **[SETUP-WINDOWS.md](SETUP-WINDOWS.md)**. Call scripts are in **[CALL-SCRIPTS.md](CALL-SCRIPTS.md)**. Both are also in the admin under **Guides & scripts**.
 
-## Days 2–3 — decisions only you can make
+## Week 1 — get the life site live
 
-- [ ] **Pick your first market.** One state, 3–8 cities you actually know. Local knowledge is what makes city pages rank.
-- [ ] **Pick your first vertical.** Recommended: life insurance / final expense.
-- [ ] **Decide who calls the leads.** You (needs a license, see below) or a buyer. Every lead's consent names one company, so you need that name before launch.
-- [ ] **Outside:** form an LLC if you haven't (the site footer, privacy policy and consent need a real legal name and address).
-- [ ] **Outside:** buy the domain (Cloudflare Registrar sells at cost, ~$10/yr).
-- [ ] **Outside (strongly recommended):** start the life & health insurance license in your state. It's a few hundred dollars and a few weeks of study, and roughly doubles what each life lead is worth to you.
+- [ ] Setup Parts 1–4: tools installed, admin open *(1 hour)*
+- [ ] Part 5: your agency name, address, email, SC producer license #, reviewer bio
+- [ ] Decide the brand name and buy the domain (Part 8)
+- [ ] Part 6: upgrade pages with AI and review them (a few nights)
+- [ ] Part 7: booking link
+- [ ] Parts 8–10: Cloudflare, deploy, test lead, Search Console
+- [ ] Ask your IMO/upline for their free quoting tool, so the quote sheet → quote step takes minutes
 
-## Days 3–5 — build your first real site (Admin)
+## Week 2 — line up partners (no website work needed)
 
-- [ ] **Sites → New site:** your brand, domain, state, cities, business details, and the buyer name.
-- [ ] **Settings tab:** fill every field highlighted orange (TODO), add a real content reviewer, and write 1–3 verified local facts per city.
-- [ ] **Pages & content → Write missing pages** (uses Ollama).
-- [ ] **Read every page.** Fix anything wrong, clear red compliance flags, tick "reviewed", "Save & next". This is the step that keeps you out of Google's spam filters and out of legal trouble.
-- [ ] **Overview tab:** the launch checklist should be all green.
-- [ ] **Outside:** have a lawyer look at the privacy policy, terms and consent wording (one-time, worth it).
+- [ ] Pick **one realtor** and **one lender** to start. Use the pitch in *Call scripts, Part 4*.
+- [ ] Get from each: name + company exactly as it should appear in consent, license/NMLS #, cities, weekly cap, how they want leads sent.
+- [ ] Have each confirm the flat per-lead fee structure with their broker-in-charge / compliance team.
+- [ ] Form or confirm your LLC for the real-estate and mortgage sites.
 
-## Day 5–6 — go live (Admin + Cloudflare dashboard)
+## Week 3 — launch real estate + mortgage
 
-- [ ] **Outside:** create a free Cloudflare account.
-- [ ] **Admin → Settings → Cloudflare:** 1. Log in → 2. Create database → 3. Apply schema.
-- [ ] **Admin → Settings → Leads:** Generate an ADMIN_TOKEN and save.
-- [ ] **Admin → your site → Build & publish:** Build, then Deploy.
-- [ ] **Cloudflare dashboard:** follow the 5 one-time steps listed under "Build & publish" (D1 binding, ADMIN_TOKEN, optional Discord/Slack webhook, custom domain, redeploy).
-- [ ] **Admin → Settings → Leads:** add your site URL to LEAD_APIS.
-- [ ] **Test:** submit the form on your live site with your own phone number, then **Leads → Pull new leads**. You should see it with a tier and score.
-- [ ] **Outside:** add the site to Google Search Console and Bing Webmaster Tools, and submit `https://yourdomain/sitemap-index.xml`.
+- [ ] In the admin, fill in **Grand Strand Home Value** and **Grand Strand Mortgage Match** (your LLC + the partner in **Buyers**), same Parts 5–10 as the life site.
+- [ ] Send each partner their first 5 verified leads free.
 
-## Weeks 2–4 — first revenue
+## Weeks 4–8 — measure, then decide
 
-- [ ] **Outside:** register for National Do Not Call Registry access (free for up to 5 area codes) and scrub before calling.
-- [ ] **Outside:** call 10–20 local independent agents. Offer 5 free leads, then a per-lead price with a weekly cap. Exclusive + consented + local is your pitch.
-- [ ] **Admin → Leads:** work every lead the same day. Mark status, buyer and price so the Overview shows real revenue.
-- [ ] Build a second site (same vertical, next market) once the first one is indexed.
+- [ ] Track every lead's status and notes. After 30–50 leads, review the quality metrics in *Call scripts, Part 5*.
+- [ ] Tell Claude which pages/cities bring good vs. bad leads; we'll tighten forms and grow the pages that work.
+- [ ] Ask realtors and lenders to refer their closing clients to you for mortgage protection (reciprocal, no per-policy payments).
+- [ ] When the important pieces are in place (domains bought, partners named), make the GitHub repo private: **GitHub → ApexForge → Settings → General → Danger Zone → Change visibility**.
 
-## Months 2–3 — scale what works
+## Realistic expectations
 
-- [ ] Look at which pages and cities produced leads; add more cities there (raise `maxCityPages` slowly).
-- [ ] Add calculator and cost-guide page types (on the roadmap in PLAN.md).
-- [ ] Add a second vertical (real-estate sellers or mortgage) using **Verticals → New vertical**.
-- [ ] Revisit Koinos only if the network shows real activity; until then keep Settlement on `none` or `log`.
+New sites typically take **3–6 months** to rank well on Google. Early leads will come slowly; that's normal. Your network is the fastest early lever: realtor and lender referrals for mortgage protection don't need Google at all.
 
-## Ongoing habits
+## Automations to add later (all free tiers)
 
-- Pull leads daily; call within minutes when you can (speed to lead is the biggest close-rate factor).
-- Review any regenerated page before rebuilding.
-- Commit your changes: `git add -A && git commit -m "..." && git push`. Never commit `.env` or `data/` (already ignored).
+- Automatic confirmation email/text to each lead (free tiers of Resend or Brevo)
+- Per-city partner routing (different realtor named per city)
+- Calculator pages ("how much life insurance do I need") to earn links and rankings
