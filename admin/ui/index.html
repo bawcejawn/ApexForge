@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="admin-token" content="__ADMIN_TOKEN__" />
+  <title>ApexForge Admin</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230f3d3e'/><path d='M9 22l7-13 7 13' stroke='%23e0a526' stroke-width='3' fill='none'/></svg>" />
+  <link rel="stylesheet" href="/app.css" />
+</head>
+<body>
+  <div class="shell">
+    <aside class="side" id="side">
+      <a class="logo" href="#/"><span class="mark">▲</span> ApexForge</a>
+      <nav id="nav">
+        <a href="#/" data-nav="overview">Overview</a>
+        <a href="#/sites" data-nav="sites">Sites</a>
+        <a href="#/leads" data-nav="leads">Leads</a>
+        <a href="#/verticals" data-nav="verticals">Verticals</a>
+        <a href="#/jobs" data-nav="jobs">Activity</a>
+        <a href="#/settings" data-nav="settings">Settings</a>
+      </nav>
+      <p class="side-foot">Runs on your PC only</p>
+    </aside>
+    <main class="main">
+      <header class="topbar">
+        <button class="icon-btn menu" id="menu" aria-label="Menu">☰</button>
+        <div id="crumbs" class="crumbs"></div>
+      </header>
+      <div id="view" class="view"></div>
+    </main>
+  </div>
+  <div id="jobdock" class="jobdock" hidden></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script type="module" src="/app.js"></script>
+</body>
+</html>
