@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, vertical, vars } from '../lib/site.mjs';
+---
+<Base title={`Thank you | ${site.brand}`} description="Your request was received." path="/thank-you/" noindex>
+  <div class="wrap prose" style="padding:48px 16px">
+    <h1>Thanks, your request is in.</h1>
+    <p>A licensed professional from <strong>{vars.buyers}</strong> will reach out shortly, usually within one business day. Keep your phone handy.</p>
+    <h2>While you wait</h2>
+    <ul>
+      <li>Jot down your goals and budget so the conversation is quick.</li>
+      <li>Have questions ready. There is no obligation to buy or apply.</li>
+    </ul>
+    <p><a class="btn secondary" href={`/${vertical.services[0].slug}/`}>Keep reading about {vertical.services[0].name.toLowerCase()}</a></p>
+  </div>
+</Base>

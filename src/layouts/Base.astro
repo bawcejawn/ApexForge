@@ -1,0 +1,122 @@
+---
+// src/layouts/Base.astro — shared shell: <head> SEO tags, JSON-LD, header, footer, disclosures.
+import { site, vertical, t, abs } from '../lib/site.mjs';
+
+interface Props {
+  title: string;
+  description: string;
+  path: string;            // canonical path, e.g. "/term-life-insurance/"
+  schema?: object[];       // extra JSON-LD objects for this page
+  noindex?: boolean;
+}
+const { title, description, path, schema = [], noindex = false } = Astro.props;
+
+const org = {
+  '@context': 'https://schema.org',
+  '@type': vertical.schemaType || 'Organization',
+  name: site.brand,
+  url: abs('/'),
+  email: site.operator.email,
+  address: site.operator.address,
+  areaServed: site.cities.map(c => ({ '@type': 'City', name: `${c.name}, ${site.state}` }))
+};
+const ldjson = [org, ...schema];
+const needsEHO = ['mortgage', 'real-estate'].includes(vertical.id);
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={abs(path)} />
+  {noindex && <meta name="robots" content="noindex, nofollow" />}
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={abs(path)} />
+  <link rel="sitemap" href="/sitemap-index.xml" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230f3d3e'/><path d='M9 22l7-13 7 13' stroke='white' stroke-width='3' fill='none'/></svg>" />
+  <script type="application/ld+json" set:html={JSON.stringify(ldjson)} />
+  {site.analytics?.cloudflareBeaconToken && (
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+      data-cf-beacon={JSON.stringify({ token: site.analytics.cloudflareBeaconToken })}></script>
+  )}
+  <style is:global define:vars={{ primary: site.theme.primary, accent: site.theme.accent }}>
+    :root {
+      --ink: #14201f; --muted: #52605e; --line: #dfe5e3; --bg: #f7f9f8; --card: #fff;
+      --radius: 14px; --max: 1120px;
+    }
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body { margin: 0; font: 17px/1.65 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+    a { color: var(--primary); }
+    .wrap { max-width: var(--max); margin: 0 auto; padding: 0 16px; }
+    header.top { background: var(--card); border-bottom: 1px solid var(--line); }
+    header.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 64px; gap: 16px; }
+    .brand { font-weight: 800; font-size: 1.1rem; text-decoration: none; color: var(--primary); letter-spacing: -.01em; }
+    nav.top a { color: var(--muted); text-decoration: none; margin-left: 18px; font-size: .95rem; }
+    nav.top a:hover { color: var(--primary); }
+    @media (max-width: 720px) { nav.top .hide-sm { display: none; } }
+    h1, h2, h3 { line-height: 1.2; letter-spacing: -.015em; }
+    h1 { font-size: clamp(1.8rem, 4vw, 2.6rem); margin: .2em 0 .4em; }
+    h2 { font-size: 1.45rem; margin-top: 1.8em; }
+    .btn { display: inline-block; background: var(--accent); color: #1d1600; font-weight: 700; border: 0; border-radius: 10px; padding: 14px 22px; font-size: 1rem; cursor: pointer; text-decoration: none; }
+    .btn:hover { filter: brightness(.95); }
+    .btn.secondary { background: transparent; color: var(--primary); border: 1px solid var(--line); }
+    .card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 24px; }
+    .grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+    .prose { max-width: 72ch; }
+    .prose p, .prose li { color: #26302f; }
+    .muted { color: var(--muted); }
+    .crumbs { font-size: .88rem; color: var(--muted); margin: 18px 0 0; }
+    .crumbs a { color: var(--muted); }
+    footer.foot { margin-top: 64px; background: #0e1a19; color: #b9c5c3; font-size: .88rem; padding: 40px 0; }
+    footer.foot a { color: #dfe8e6; }
+    footer.foot .cols { display: flex; flex-wrap: wrap; gap: 32px; justify-content: space-between; }
+    .disclosure { border-top: 1px solid #263534; margin-top: 24px; padding-top: 16px; line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <header class="top">
+    <div class="wrap">
+      <a class="brand" href="/">{site.brand}</a>
+      <nav class="top" aria-label="Main">
+        {vertical.services.slice(0, 3).map(s => <a class="hide-sm" href={`/${s.slug}/`}>{s.name.replace(/ Insurance$/, '')}</a>)}
+        <a href="/#get-started"><strong>{vertical.cta}</strong></a>
+      </nav>
+    </div>
+  </header>
+
+  <main><slot /></main>
+
+  <footer class="foot">
+    <div class="wrap">
+      <div class="cols">
+        <div>
+          <strong style="color:#fff">{site.brand}</strong><br />
+          {site.operator.legalName}<br />{site.operator.address}<br />
+          <a href={`mailto:${site.operator.email}`}>{site.operator.email}</a>
+        </div>
+        <div>
+          {vertical.services.map(s => <><a href={`/${s.slug}/`}>{s.name}</a><br /></>)}
+        </div>
+        <div>
+          <a href="/about/">About &amp; editorial standards</a><br />
+          <a href="/partners/">Who will contact me</a><br />
+          <a href="/privacy/">Privacy Policy</a><br />
+          <a href="/terms/">Terms of Use</a><br />
+          <a href="/privacy/#do-not-sell">Do Not Sell or Share My Info</a>
+        </div>
+      </div>
+      <p class="disclosure">
+        {t(vertical.compliance.notAProvider)}
+        {needsEHO && <> Equal Housing Opportunity.</>}
+        <br />© {year} {site.operator.legalName}. All rights reserved.
+      </p>
+    </div>
+  </footer>
+</body>
+</html>

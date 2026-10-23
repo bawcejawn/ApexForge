@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.astro/
+.wrangler/
+.env
+# Local lead copies contain PII — never commit
+data/
+# Regenerated on every build
+lib/registry.generated.mjs
+# Deleted sites from the admin (recoverable)
+.trash/

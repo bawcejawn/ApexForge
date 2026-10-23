@@ -1,0 +1,10 @@
+---
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site.mjs';
+---
+<Base title={`Page not found | ${site.brand}`} description="Page not found." path="/404/" noindex>
+  <div class="wrap prose" style="padding:48px 16px">
+    <h1>We couldn't find that page.</h1>
+    <p><a href="/">Go to the homepage</a> to compare your options.</p>
+  </div>
+</Base>

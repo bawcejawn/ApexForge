@@ -1,0 +1,11 @@
+{
+  "_comment": "Placeholder ABI. Regenerate from the compiled contract (koinos-sdk-as-cli generates the real one with koilib_types).",
+  "methods": {
+    "register_lead":     { "entry_point": 1, "argument": "leadregistry.event_args", "return": "leadregistry.empty", "read_only": false },
+    "record_sale":       { "entry_point": 2, "argument": "leadregistry.event_args", "return": "leadregistry.empty", "read_only": false },
+    "record_acceptance": { "entry_point": 3, "argument": "leadregistry.event_args", "return": "leadregistry.empty", "read_only": false },
+    "record_return":     { "entry_point": 4, "argument": "leadregistry.event_args", "return": "leadregistry.empty", "read_only": false },
+    "get_lead":          { "entry_point": 5, "argument": "leadregistry.event_args", "return": "leadregistry.lead_record", "read_only": true }
+  },
+  "koilib_types": {}
+}

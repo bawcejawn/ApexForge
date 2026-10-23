@@ -1,0 +1,209 @@
+{
+  "id": "real-estate",
+  "label": "Real Estate",
+  "heroTitle": "Buying or selling a home in {{city}}?",
+  "heroSub": "Get matched with a top local agent who knows your neighborhood, or get a free home value estimate.",
+  "cta": "Get matched",
+  "audience": "local homeowners planning to sell and buyers planning a purchase",
+  "services": [
+    {
+      "slug": "sell-my-house",
+      "name": "Sell My House",
+      "keyword": "sell my house",
+      "angle": "homeowners deciding between listing with an agent and selling as-is, wanting a realistic price and timeline",
+      "faqs": [
+        {
+          "q": "How long does it take to sell a house?",
+          "a": "It depends on price, condition and local demand. A local agent can show you recent days-on-market for comparable homes nearby."
+        }
+      ]
+    },
+    {
+      "slug": "home-value",
+      "name": "What Is My Home Worth",
+      "keyword": "home value estimate",
+      "angle": "owners curious about current market value, often 3-12 months from selling",
+      "faqs": [
+        {
+          "q": "How accurate are online home value estimates?",
+          "a": "Automated estimates can be off by a wide margin, especially for unique homes. A comparative market analysis from a local agent uses recent nearby sales and the home's condition."
+        }
+      ]
+    },
+    {
+      "slug": "buy-a-home",
+      "name": "Buy a Home",
+      "keyword": "buyers agent",
+      "angle": "buyers who want a local agent to find, tour and negotiate on homes",
+      "faqs": [
+        {
+          "q": "Who pays the buyer's agent?",
+          "a": "Compensation is negotiable and is set out in a written buyer agreement before touring. An agent will explain the options in your market."
+        }
+      ]
+    }
+  ],
+  "form": {
+    "steps": [
+      {
+        "title": "How can we help?",
+        "fields": [
+          {
+            "name": "service",
+            "label": "I want to",
+            "type": "select",
+            "required": true,
+            "fromServices": true
+          },
+          {
+            "name": "timeline",
+            "label": "Timeline",
+            "type": "select",
+            "required": true,
+            "options": [
+              "ASAP",
+              "1-3 months",
+              "3-6 months",
+              "6-12 months",
+              "Just curious"
+            ]
+          },
+          {
+            "name": "price_range",
+            "label": "Price range / estimated value",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Under $200,000",
+              "$200,000 - $350,000",
+              "$350,000 - $500,000",
+              "$500,000 - $800,000",
+              "Over $800,000"
+            ]
+          },
+          {
+            "name": "address",
+            "label": "Property address (sellers)",
+            "type": "text",
+            "required": false,
+            "autocomplete": "street-address"
+          }
+        ]
+      },
+      {
+        "title": "Who should the agent contact?",
+        "fields": [
+          {
+            "name": "first_name",
+            "label": "First name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "given-name"
+          },
+          {
+            "name": "last_name",
+            "label": "Last name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "family-name"
+          },
+          {
+            "name": "zip",
+            "label": "ZIP code",
+            "type": "zip",
+            "required": true,
+            "autocomplete": "postal-code"
+          },
+          {
+            "name": "phone",
+            "label": "Phone",
+            "type": "tel",
+            "required": true,
+            "autocomplete": "tel"
+          },
+          {
+            "name": "email",
+            "label": "Email",
+            "type": "email",
+            "required": true,
+            "autocomplete": "email"
+          }
+        ]
+      }
+    ]
+  },
+  "scoring": {
+    "rules": [
+      {
+        "field": "timeline",
+        "in": [
+          "ASAP",
+          "1-3 months"
+        ],
+        "points": 30
+      },
+      {
+        "field": "timeline",
+        "in": [
+          "3-6 months"
+        ],
+        "points": 15
+      },
+      {
+        "field": "service",
+        "in": [
+          "sell-my-house",
+          "home-value"
+        ],
+        "points": 15
+      },
+      {
+        "field": "address",
+        "present": true,
+        "points": 10
+      },
+      {
+        "field": "price_range",
+        "in": [
+          "$350,000 - $500,000",
+          "$500,000 - $800,000",
+          "Over $800,000"
+        ],
+        "points": 10
+      },
+      {
+        "field": "_phone_valid",
+        "in": [
+          true
+        ],
+        "points": 20
+      },
+      {
+        "field": "_email_freemail_disposable",
+        "in": [
+          true
+        ],
+        "points": -40
+      }
+    ],
+    "tiers": {
+      "A": 70,
+      "B": 45
+    },
+    "suggestedPrice": {
+      "A": 80,
+      "B": 40,
+      "C": 10
+    }
+  },
+  "compliance": {
+    "regulator": "state real estate commission",
+    "notAProvider": "{{brand}} is not a real estate brokerage. We connect you with licensed local real estate agents. Home value estimates are not appraisals.",
+    "contentRules": [
+      "Never guarantee a sale price or timeline.",
+      "Fair Housing: never describe neighborhoods by the people who live there (race, religion, family status, etc.). Describe homes, amenities and commutes only.",
+      "Use 'Equal Housing Opportunity' in the footer."
+    ]
+  },
+  "schemaType": "Organization"
+}

@@ -1,0 +1,16 @@
+---
+// Discloses exactly who will contact a consumer. Buyers expect this, and it
+// keeps consent seller-specific instead of "our marketing partners".
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site.mjs';
+---
+<Base title={`Who will contact me | ${site.brand}`} description="The licensed company that may contact you after you submit our form." path="/partners/">
+  <div class="wrap prose">
+    <h1>Who will contact me?</h1>
+    <p>When you submit our form and check the consent box, only the company named in that consent may contact you:</p>
+    <ul>
+      {site.buyers.map(b => <li><strong>{b.name}</strong>{b.license && ` — ${b.license}`}</li>)}
+    </ul>
+    <p>We do not pass your information to any other company. To stop contact at any time, reply STOP to a text or email <a href={`mailto:${site.operator.email}`}>{site.operator.email}</a>.</p>
+  </div>
+</Base>

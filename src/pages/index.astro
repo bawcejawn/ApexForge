@@ -1,0 +1,71 @@
+---
+// Homepage: hero + form above the fold, then services, local links, content, FAQs.
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Faq from '../components/Faq.astro';
+import { site, vertical, pages, pageContent, t } from '../lib/site.mjs';
+import { faqSchema } from '../lib/schema.mjs';
+
+const home = pages.find(p => p.kind === 'home');
+const c = pageContent(home);
+const faqs = vertical.services.flatMap(s => s.faqs || []).slice(0, 6);
+const website = { '@context': 'https://schema.org', '@type': 'WebSite', name: site.brand, url: `https://${site.domain}/` };
+const firstSvc = vertical.services[0];
+---
+<Base title={c.title} description={c.description} path="/" schema={[website, faqSchema(faqs)].filter(Boolean)}>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">{site.cities[0].name} · {site.stateName}</p>
+        <h1>{c.h1}</h1>
+        <p class="lede">{t(vertical.heroSub)}</p>
+        <ul class="trust">
+          <li>Licensed professionals only</li>
+          <li>No cost, no obligation</li>
+          <li>Your info goes to one named company, not a list</li>
+        </ul>
+      </div>
+      <div id="get-started"><LeadForm service={firstSvc.slug} city={site.cities[0].name} /></div>
+    </div>
+  </section>
+
+  <section class="wrap">
+    <h2>Compare your options</h2>
+    <div class="grid">
+      {vertical.services.map(s => (
+        <a class="card svc" href={`/${s.slug}/`}>
+          <strong>{s.name}</strong>
+          <span class="muted">{s.angle.charAt(0).toUpperCase() + s.angle.slice(1)}.</span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  <section class="wrap">
+    <article class="prose" set:html={c.html} />
+  </section>
+
+  <section class="wrap">
+    <h2>Areas we serve</h2>
+    <p class="cities">
+      {site.cities.slice(0, site.maxCityPages ?? 25).map(city => (
+        <a href={`/${firstSvc.slug}/${city.slug}/`}>{firstSvc.name} in {city.name}</a>
+      ))}
+    </p>
+  </section>
+
+  <section class="wrap"><Faq faqs={faqs} /></section>
+</Base>
+
+<style>
+  .hero { background: linear-gradient(180deg, #fff, var(--bg)); border-bottom: 1px solid var(--line); padding: 40px 0 48px; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr .9fr; gap: 40px; align-items: start; }
+  @media (max-width: 900px) { .hero-grid { grid-template-columns: 1fr; gap: 24px; } }
+  .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .78rem; font-weight: 700; color: var(--primary); margin: 0; }
+  .lede { font-size: 1.15rem; color: var(--muted); max-width: 52ch; }
+  .trust { list-style: none; padding: 0; margin: 20px 0 0; display: grid; gap: 8px; }
+  .trust li::before { content: "✓"; color: var(--primary); font-weight: 800; margin-right: 10px; }
+  .svc { text-decoration: none; color: inherit; display: grid; gap: 6px; transition: border-color .15s; }
+  .svc:hover { border-color: var(--primary); }
+  .cities { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+</style>

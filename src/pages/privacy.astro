@@ -1,0 +1,40 @@
+---
+// Privacy policy TEMPLATE. Have a lawyer review before launch — this is a
+// starting point, not legal advice. It must match what you actually do.
+import Base from '../layouts/Base.astro';
+import { site, vertical, vars } from '../lib/site.mjs';
+const updated = new Date().toISOString().slice(0, 10);
+---
+<Base title={`Privacy Policy | ${site.brand}`} description={`How ${site.brand} collects, uses and shares your information.`} path="/privacy/">
+  <div class="wrap prose">
+    <h1>Privacy Policy</h1>
+    <p class="muted">Last updated {updated}</p>
+    <p>{site.brand} is operated by {site.operator.legalName} ("we", "us"). This policy explains what we collect when you use this website and what we do with it.</p>
+
+    <h2>What we collect</h2>
+    <ul>
+      <li><strong>Information you give us</strong> in our form: name, contact details, ZIP code and answers about your {vertical.label.toLowerCase()} needs.</li>
+      <li><strong>Consent records:</strong> the exact consent language you agreed to, the date and time, your IP address, browser user agent and the page you were on. We keep this to prove you asked to be contacted.</li>
+      <li><strong>Basic usage data</strong> such as pages viewed and referring site, collected with privacy-friendly analytics that do not use advertising cookies.</li>
+    </ul>
+
+    <h2>How we use and share it</h2>
+    <p>We use your information to connect you with <strong>{vars.buyers}</strong>, the company named in our form, so they can contact you about the products you asked about. We share your information only with the company named at the time you submitted the form, and with service providers that help us run this site (for example, hosting). We do not sell your information to data brokers or share it with unnamed third parties.</p>
+
+    <h2 id="do-not-sell">Your choices</h2>
+    <ul>
+      <li><strong>Stop calls and texts:</strong> reply STOP to any text, or tell the caller to stop. You can also email us and we will forward your request.</li>
+      <li><strong>Access or delete:</strong> email <a href={`mailto:${site.operator.email}`}>{site.operator.email}</a> to request a copy or deletion of your information. Some state laws give you additional rights; we honor them for all users.</li>
+      <li><strong>Do Not Sell or Share:</strong> to opt out of any future sharing, email us with the subject "Do Not Sell".</li>
+    </ul>
+
+    <h2>Retention and security</h2>
+    <p>We keep lead and consent records for as long as needed to provide the service and to meet legal record-keeping obligations (consent records are typically kept for several years). Data is stored with encrypted connections on reputable cloud infrastructure.</p>
+
+    <h2>Children</h2>
+    <p>This site is intended for adults 18 and older. We do not knowingly collect information from minors.</p>
+
+    <h2>Contact</h2>
+    <p>{site.operator.legalName}, {site.operator.address}. <a href={`mailto:${site.operator.email}`}>{site.operator.email}</a></p>
+  </div>
+</Base>

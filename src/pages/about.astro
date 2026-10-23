@@ -1,0 +1,22 @@
+---
+// About + editorial standards page: a key E-E-A-T signal for finance ("Your
+// Money or Your Life") topics. Fill in site.author with a real reviewer.
+import Base from '../layouts/Base.astro';
+import { site, vertical, t } from '../lib/site.mjs';
+const a = site.author || {};
+---
+<Base title={`About ${site.brand}`} description={`Who runs ${site.brand} and how our content is written and reviewed.`} path="/about/">
+  <div class="wrap prose">
+    <h1>About {site.brand}</h1>
+    <p>{site.brand} helps people in {site.stateName} understand their {vertical.label.toLowerCase()} options and connect with a licensed professional. It is operated by {site.operator.legalName}, based at {site.operator.address}.</p>
+    <p>{t(vertical.compliance.notAProvider)}</p>
+    <h2>How we make money</h2>
+    <p>We are paid by the licensed companies we connect you with. That never costs you anything, and it does not change the information on this site.</p>
+    <h2>Editorial standards</h2>
+    <p>Our guides are drafted with the help of software and then read, fact-checked and edited by a person before they are marked as reviewed. We avoid quoting prices or rates, because those depend on the provider and your situation. If you spot an error, email <a href={`mailto:${site.operator.email}`}>{site.operator.email}</a>.</p>
+    {a.name && !a.name.startsWith('TODO') && <>
+      <h2>Content reviewer</h2>
+      <p><strong>{a.name}</strong>{a.credentials && `, ${a.credentials}`}. {a.bio}</p>
+    </>}
+  </div>
+</Base>

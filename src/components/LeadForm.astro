@@ -1,0 +1,146 @@
+---
+// src/components/LeadForm.astro
+// Two-step lead form generated from the vertical's `form.steps`.
+// - Consent checkbox is UNCHECKED by default and required (TCPA).
+// - The exact consent text shown is posted with the lead and stored as proof.
+// - Honeypot field + time-on-page catch most bots without a CAPTCHA.
+// Posts JSON to /api/lead (Cloudflare Pages Function in /functions).
+import { site, vertical, consentText } from '../lib/site.mjs';
+
+interface Props { service?: string; city?: string; }
+const { service, city } = Astro.props;
+const consent = consentText();
+const steps = vertical.form.steps;
+---
+<form class="lead card" id="lead-form" novalidate data-site={site.slug}>
+  <div class="lead-head">
+    <strong>{vertical.cta}</strong>
+    <span class="muted step-count">Step <b data-step-now>1</b> of {steps.length}</span>
+  </div>
+
+  {steps.map((step, i) => (
+    <fieldset data-step={i} hidden={i !== 0}>
+      <legend>{step.title}</legend>
+      {step.fields.map(f => (
+        <label class="field">
+          <span>{f.label}{f.required && <em aria-hidden="true"> *</em>}</span>
+          {f.type === 'select' ? (
+            <select name={f.name} required={f.required}>
+              <option value="">Choose one…</option>
+              {(f.fromServices ? vertical.services.map(s => ({ v: s.slug, l: s.name })) : f.options.map(o => ({ v: o, l: o })))
+                .map(o => <option value={o.v} selected={o.v === service}>{o.l}</option>)}
+            </select>
+          ) : (
+            <input
+              name={f.name}
+              required={f.required}
+              autocomplete={f.autocomplete}
+              type={f.type === 'tel' ? 'tel' : f.type === 'email' ? 'email' : 'text'}
+              inputmode={f.type === 'zip' ? 'numeric' : f.type === 'tel' ? 'tel' : undefined}
+              pattern={f.type === 'zip' ? '\\d{5}' : undefined}
+              maxlength={f.type === 'zip' ? 5 : 120}
+            />
+          )}
+        </label>
+      ))}
+
+      {i === steps.length - 1 && (
+        <label class="consent">
+          <input type="checkbox" name="consent" value="yes" required />
+          <span>{consent} See <a href="/privacy/" target="_blank">Privacy Policy</a> and <a href="/terms/" target="_blank">Terms</a>.</span>
+        </label>
+      )}
+
+      <div class="actions">
+        {i > 0 && <button type="button" class="btn secondary" data-back>Back</button>}
+        {i < steps.length - 1
+          ? <button type="button" class="btn" data-next>Continue</button>
+          : <button type="submit" class="btn">{vertical.cta}</button>}
+      </div>
+    </fieldset>
+  ))}
+
+  <!-- Honeypot: hidden from humans, bots fill it. -->
+  <div aria-hidden="true" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">
+    <label>Company website <input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
+  </div>
+  <input type="hidden" name="city" value={city || ''} />
+  <input type="hidden" name="consent_text" value={consent} />
+  <p class="form-msg" role="alert" hidden></p>
+  <p class="muted small">Free. No obligation. Your information is shared only with the company named above.</p>
+</form>
+
+<style>
+  .lead { position: relative; box-shadow: 0 10px 30px rgba(15, 61, 62, .08); }
+  .lead-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  fieldset { border: 0; padding: 0; margin: 0; }
+  legend { font-weight: 700; font-size: 1.15rem; margin-bottom: 10px; }
+  .field { display: block; margin: 0 0 12px; }
+  .field span { display: block; font-size: .9rem; font-weight: 600; margin-bottom: 4px; }
+  .field em { color: #b3261e; font-style: normal; }
+  .field input, .field select { width: 100%; font: inherit; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .field .invalid { border-color: #b3261e; }
+  .consent { display: flex; gap: 10px; font-size: .78rem; line-height: 1.45; color: var(--muted); margin: 8px 0 14px; }
+  .consent input { margin-top: 3px; flex: none; width: 18px; height: 18px; }
+  .actions { display: flex; gap: 10px; }
+  .actions .btn { flex: 1; }
+  .form-msg { color: #b3261e; font-weight: 600; }
+  .small { font-size: .8rem; margin: 10px 0 0; }
+</style>
+
+<script>
+  // Plain JS, no framework. Handles steps, validation, UTM capture and submit.
+  const form = document.getElementById('lead-form') as HTMLFormElement;
+  const started = Date.now();
+  const steps = [...form.querySelectorAll<HTMLFieldSetElement>('fieldset[data-step]')];
+  const msg = form.querySelector('.form-msg') as HTMLElement;
+  let cur = 0;
+
+  const show = (i: number) => {
+    steps.forEach((s, j) => (s.hidden = j !== i));
+    cur = i;
+    (form.querySelector('[data-step-now]') as HTMLElement).textContent = String(i + 1);
+  };
+  const valid = (fs: HTMLFieldSetElement) => {
+    let ok = true;
+    fs.querySelectorAll<HTMLInputElement | HTMLSelectElement>('input,select').forEach(el => {
+      const bad = !el.checkValidity();
+      el.classList.toggle('invalid', bad);
+      if (bad && ok) { el.focus(); ok = false; }
+    });
+    msg.hidden = ok;
+    if (!ok) msg.textContent = 'Please complete the highlighted fields.';
+    return ok;
+  };
+
+  form.addEventListener('click', e => {
+    const b = e.target as HTMLElement;
+    if (b.matches('[data-next]') && valid(steps[cur])) show(cur + 1);
+    if (b.matches('[data-back]')) show(cur - 1);
+  });
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    if (!valid(steps[cur])) return;
+    const data: Record<string, unknown> = Object.fromEntries(new FormData(form));
+    const q = new URLSearchParams(location.search);
+    for (const k of ['utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'gclid']) if (q.get(k)) data[k] = q.get(k);
+    data.site = form.dataset.site;
+    data.page_url = location.href;
+    data.referrer = document.referrer;
+    data._time_on_page_s = Math.round((Date.now() - started) / 1000);
+    const btn = form.querySelector('[type=submit]') as HTMLButtonElement;
+    btn.disabled = true; btn.textContent = 'Sending…';
+    try {
+      const res = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong.');
+      location.href = '/thank-you/';
+    } catch (err) {
+      msg.hidden = false;
+      msg.textContent = (err as Error).message + ' Please try again.';
+      btn.disabled = false; btn.textContent = 'Try again';
+    }
+  });
+</script>

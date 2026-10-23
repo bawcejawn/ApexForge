@@ -1,0 +1,29 @@
+{
+  "name": "apexforge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Zero-recurring-cost AI + programmatic SEO lead-site generator (life insurance, mortgage, real estate, more).",
+  "scripts": {
+    "admin": "node admin/server.mjs",
+    "forge": "node scripts/forge.mjs",
+    "new-site": "node scripts/new-site.mjs",
+    "content": "node scripts/generate-content.mjs",
+    "build": "node scripts/build.mjs",
+    "dev": "node scripts/build.mjs --dev",
+    "deploy": "node scripts/deploy.mjs",
+    "leads": "node scripts/pull-leads.mjs",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.0.0",
+    "marked": "^14.1.0"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

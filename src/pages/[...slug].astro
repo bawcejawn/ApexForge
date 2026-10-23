@@ -1,0 +1,78 @@
+---
+// Programmatic SEO pages: one per service (/term-life-insurance/) and one per
+// service × city (/term-life-insurance/austin-tx/). The page plan lives
+// in lib/core.mjs -> planPages(), shared with the content generator.
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Faq from '../components/Faq.astro';
+import { site, vertical, pages, pageContent } from '../lib/site.mjs';
+import { faqSchema, breadcrumbSchema, serviceSchema } from '../lib/schema.mjs';
+
+export function getStaticPaths() {
+  return pages.filter(p => p.kind !== 'home').map(page => ({
+    params: { slug: page.url.replace(/^\/|\/$/g, '') },
+    props: { page }
+  }));
+}
+
+const { page } = Astro.props;
+const c = pageContent(page);
+const svc = page.service;
+const city = page.city;
+const area = city ? `${city.name}, ${site.state}` : site.stateName;
+
+const crumbs = [{ name: 'Home', path: '/' }, { name: svc.name, path: `/${svc.slug}/` }];
+if (city) crumbs.push({ name: city.name, path: page.url });
+
+// Internal linking mesh: same service in other cities + other services here.
+const cityPages = pages.filter(p => p.kind === 'local' && p.service.slug === svc.slug && p.url !== page.url).slice(0, 12);
+const otherSvcs = vertical.services.filter(s => s.slug !== svc.slug)
+  .map(s => ({ s, url: city ? `/${s.slug}/${city.slug}/` : `/${s.slug}/` }));
+
+const schema = [
+  breadcrumbSchema(crumbs),
+  serviceSchema({ name: svc.name, description: c.description, areaName: area, brand: site.brand }),
+  faqSchema(svc.faqs || [])
+].filter(Boolean);
+const reviewed = c.reviewed === 'true';
+---
+<Base title={c.title} description={c.description} path={page.url} schema={schema}>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      {crumbs.map((cr, i) => <>{i > 0 && ' › '}{i < crumbs.length - 1 ? <a href={cr.path}>{cr.name}</a> : <span>{cr.name}</span>}</>)}
+    </nav>
+    <div class="layout">
+      <div>
+        <h1>{c.h1}</h1>
+        <p class="byline muted">
+          {reviewed && site.author?.name && !site.author.name.startsWith('TODO')
+            ? <>Reviewed by {site.author.name}{site.author.credentials && `, ${site.author.credentials}`}</>
+            : <>{site.brand} editorial team</>}
+        </p>
+        <article class="prose" set:html={c.html} />
+        <Faq faqs={svc.faqs || []} />
+
+        <section class="related">
+          {otherSvcs.length > 0 && <>
+            <h2>Other options in {area}</h2>
+            <ul>{otherSvcs.map(o => <li><a href={o.url}>{o.s.name}{city ? ` in ${city.name}` : ''}</a></li>)}</ul>
+          </>}
+          {cityPages.length > 0 && <>
+            <h2>{svc.name} near you</h2>
+            <p class="near">{cityPages.map(p => <a href={p.url}>{p.city.name}</a>)}</p>
+          </>}
+        </section>
+      </div>
+      <aside id="get-started"><div class="sticky"><LeadForm service={svc.slug} city={city?.name} /></div></aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } aside { order: -1; } }
+  .sticky { position: sticky; top: 16px; margin-top: 28px; }
+  .byline { margin-top: -8px; font-size: .9rem; }
+  .related ul { padding-left: 1.2em; }
+  .near { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+</style>

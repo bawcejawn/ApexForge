@@ -1,0 +1,22 @@
+// koinos/contract/leadregistry.proto — message types for the LeadRegistry sketch.
+syntax = "proto3";
+package leadregistry;
+
+message empty {}
+
+message event_args {
+  string lead_hash = 1;   // sha256 hex of id|phone|created_at|site (computed off-chain)
+  string vertical = 2;
+  string tier = 3;
+  string buyer = 4;       // pseudonymous buyer ID — never a name
+  uint64 price_cents = 5 [jstype = JS_STRING];
+}
+
+message lead_record {
+  string vertical = 1;
+  string tier = 2;
+  string status = 3;      // listed | sold | accepted | returned
+  string buyer = 4;
+  uint64 price_cents = 5 [jstype = JS_STRING];
+  uint64 updated = 6;
+}

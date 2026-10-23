@@ -1,0 +1,23 @@
+---
+// Terms of Use TEMPLATE — have a lawyer review before launch.
+import Base from '../layouts/Base.astro';
+import { site, vertical, t } from '../lib/site.mjs';
+---
+<Base title={`Terms of Use | ${site.brand}`} description={`Terms of use for ${site.brand}.`} path="/terms/">
+  <div class="wrap prose">
+    <h1>Terms of Use</h1>
+    <p>By using this website you agree to these terms. If you do not agree, please do not use the site.</p>
+    <h2>What we do</h2>
+    <p>{t(vertical.compliance.notAProvider)} Content on this site is general information, not professional, financial, legal or tax advice.</p>
+    <h2>Your submission</h2>
+    <p>You agree that the information you submit is accurate and is your own, and that you are at least 18. Submitting a phone number that is not yours is prohibited.</p>
+    <h2>Communications</h2>
+    <p>If you check the consent box, you agree to be contacted as described next to that box. Consent is not required to buy anything. You can withdraw consent at any time by replying STOP or emailing {site.operator.email}.</p>
+    <h2>No guarantees</h2>
+    <p>We do not guarantee that you will be offered any product, price or approval. Providers make all decisions.</p>
+    <h2>Limitation of liability</h2>
+    <p>To the fullest extent permitted by law, {site.operator.legalName} is not liable for decisions you make based on this site or for the acts of providers you choose to work with.</p>
+    <h2>Governing law</h2>
+    <p>These terms are governed by the laws of {site.stateName}.</p>
+  </div>
+</Base>

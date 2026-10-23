@@ -1,0 +1,102 @@
+{
+  "_comment": "Vertical definition. Drives services (page types), the lead form, lead scoring, compliance text and the AI prompt. Copy this file to add a vertical.",
+  "id": "life-insurance",
+  "label": "Life Insurance",
+  "heroTitle": "Compare life insurance quotes in {{city}}",
+  "heroSub": "Answer a few questions and a licensed agent will walk you through options from multiple carriers. No cost, no obligation.",
+  "cta": "Get my free quote",
+  "audience": "adults 25-80 protecting family income, a mortgage, or final expenses",
+  "services": [
+    {
+      "slug": "term-life-insurance",
+      "name": "Term Life Insurance",
+      "keyword": "term life insurance",
+      "angle": "affordable fixed-period coverage to replace income and protect a mortgage while kids are young",
+      "faqs": [
+        { "q": "How much term life insurance do I need?", "a": "A common starting point is 10–12 times your annual income, adjusted for your mortgage, debts, children's education goals, and savings. A licensed agent can run the numbers with you." },
+        { "q": "What happens when my term ends?", "a": "Coverage stops unless the policy is renewable or convertible. Many term policies let you convert to permanent coverage without a new medical exam before a set age." }
+      ]
+    },
+    {
+      "slug": "whole-life-insurance",
+      "name": "Whole Life Insurance",
+      "keyword": "whole life insurance",
+      "angle": "permanent coverage with level premiums and cash value for people who want lifelong protection",
+      "faqs": [
+        { "q": "Is whole life worth the higher premium?", "a": "It depends on your goals. Whole life costs more than term but lasts your entire life and builds cash value. It tends to fit people with permanent needs such as estate planning or a lifelong dependent." }
+      ]
+    },
+    {
+      "slug": "final-expense-insurance",
+      "name": "Final Expense Insurance",
+      "keyword": "final expense insurance",
+      "angle": "small whole life policies (often $5k–$35k) for seniors to cover funeral costs and final bills, frequently with simplified underwriting",
+      "faqs": [
+        { "q": "Can I get final expense insurance without a medical exam?", "a": "Many final expense policies use simplified issue underwriting, meaning a health questionnaire instead of an exam. Some guaranteed-issue options exist, usually with a waiting period." },
+        { "q": "What ages qualify?", "a": "Most carriers offer final expense coverage to applicants roughly 50 to 85, though limits vary by carrier and state." }
+      ]
+    },
+    {
+      "slug": "mortgage-protection-insurance",
+      "name": "Mortgage Protection Insurance",
+      "keyword": "mortgage protection insurance",
+      "angle": "life coverage sized to a home loan so the family keeps the house if a borrower dies",
+      "faqs": [
+        { "q": "Is mortgage protection the same as PMI?", "a": "No. PMI protects the lender if you stop paying. Mortgage protection life insurance pays your family, who can use it to pay off or keep paying the mortgage." }
+      ]
+    }
+  ],
+  "form": {
+    "steps": [
+      {
+        "title": "What are you looking for?",
+        "fields": [
+          { "name": "service", "label": "Coverage type", "type": "select", "required": true, "fromServices": true },
+          { "name": "coverage_amount", "label": "Coverage amount", "type": "select", "required": true,
+            "options": ["Under $25,000", "$25,000 - $100,000", "$100,000 - $250,000", "$250,000 - $500,000", "$500,000 - $1,000,000", "Over $1,000,000", "Not sure"] },
+          { "name": "age_range", "label": "Your age", "type": "select", "required": true,
+            "options": ["18-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"] },
+          { "name": "tobacco", "label": "Used tobacco in the last 12 months?", "type": "select", "required": true, "options": ["No", "Yes"] }
+        ]
+      },
+      {
+        "title": "Where should we send your quotes?",
+        "fields": [
+          { "name": "first_name", "label": "First name", "type": "text", "required": true, "autocomplete": "given-name" },
+          { "name": "last_name", "label": "Last name", "type": "text", "required": true, "autocomplete": "family-name" },
+          { "name": "zip", "label": "ZIP code", "type": "zip", "required": true, "autocomplete": "postal-code" },
+          { "name": "phone", "label": "Phone", "type": "tel", "required": true, "autocomplete": "tel" },
+          { "name": "email", "label": "Email", "type": "email", "required": true, "autocomplete": "email" },
+          { "name": "best_time", "label": "Best time to call", "type": "select", "required": false, "options": ["Morning", "Afternoon", "Evening", "Anytime"] }
+        ]
+      }
+    ]
+  },
+  "scoring": {
+    "_comment": "Points add up to a 0-100 score. Tier: A >= 70, B >= 45, else C. Price leads by tier.",
+    "rules": [
+      { "field": "coverage_amount", "in": ["$250,000 - $500,000", "$500,000 - $1,000,000", "Over $1,000,000"], "points": 30 },
+      { "field": "coverage_amount", "in": ["$100,000 - $250,000", "$25,000 - $100,000"], "points": 20 },
+      { "field": "age_range", "in": ["30-39", "40-49", "50-59"], "points": 20 },
+      { "field": "age_range", "in": ["60-69", "70-79"], "points": 15 },
+      { "field": "tobacco", "in": ["No"], "points": 10 },
+      { "field": "best_time", "present": true, "points": 5 },
+      { "field": "_phone_valid", "in": [true], "points": 20 },
+      { "field": "_time_on_page_s", "min": 20, "points": 10 },
+      { "field": "_email_freemail_disposable", "in": [true], "points": -40 }
+    ],
+    "tiers": { "A": 70, "B": 45 },
+    "suggestedPrice": { "A": 65, "B": 40, "C": 15 }
+  },
+  "compliance": {
+    "regulator": "state department of insurance",
+    "notAProvider": "{{brand}} is not an insurance company and does not issue policies. We connect you with licensed insurance agents. Quotes, rates and eligibility are determined by carriers and depend on underwriting.",
+    "contentRules": [
+      "Never state specific premiums, rates or guarantees of approval.",
+      "Never claim to be an insurer, carrier, or licensed agent.",
+      "Never use words like 'free money', 'government program', or imply affiliation with Medicare or any agency.",
+      "Health and underwriting statements must be general and hedged ('may', 'often', 'depends on the carrier')."
+    ]
+  },
+  "schemaType": "Organization"
+}

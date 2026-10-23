@@ -1,0 +1,23 @@
+---
+// src/components/Faq.astro — FAQ list. FAQs come from the vertical config
+// (human-written, accurate) rather than the AI, so FAQ schema never contains
+// hallucinated claims.
+interface Props { faqs: { q: string; a: string }[]; }
+const { faqs } = Astro.props;
+---
+{faqs.length > 0 && (
+  <section class="faq prose">
+    <h2>Frequently asked questions</h2>
+    {faqs.map(f => (
+      <details>
+        <summary>{f.q}</summary>
+        <p>{f.a}</p>
+      </details>
+    ))}
+  </section>
+)}
+<style>
+  details { border-bottom: 1px solid var(--line); padding: 12px 0; }
+  summary { cursor: pointer; font-weight: 650; }
+  details p { margin: 8px 0 0; }
+</style>
