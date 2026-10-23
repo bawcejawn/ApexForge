@@ -6,6 +6,7 @@
 //   npm run content -- --site <slug>              # only missing pages
 //   npm run content -- --site <slug> --overwrite  # regenerate everything
 //   npm run content -- --site <slug> --template   # skip AI, templates only
+//   npm run content -- --site <slug> --upgrade    # rewrite only pages still on template text
 //
 // Each file gets `reviewed: "false"`. Read it, fix it, flip to "true".
 // Risky phrases (rates, guarantees...) are listed in content/_review.json.
@@ -17,7 +18,7 @@ import { pageMeta, systemPrompt, userPrompt, templateBody, lintBody } from '../l
 import { generate } from '../lib/llm.mjs';
 import { loadEnv } from './env.mjs';
 
-export async function generateContent(slug, { overwrite = false, template = false } = {}) {
+export async function generateContent(slug, { overwrite = false, template = false, upgrade = false } = {}) {
   loadEnv();
   const ctx = loadSite(slug);
   const pages = planPages(ctx);
@@ -28,7 +29,8 @@ export async function generateContent(slug, { overwrite = false, template = fals
   console.log(`→ Generating content for ${slug}: ${pages.length} pages`);
   for (const [i, page] of pages.entries()) {
     const existing = readContent(ctx.dir, page.contentFile);
-    if (existing && !overwrite) {
+    const upgradeThis = upgrade && existing?.data.source === 'template';
+    if (existing && !overwrite && !upgradeThis) {
       // Kept pages are re-linted so _review.json always reflects every page.
       const kept = lintBody(existing.body);
       if (kept.length) review[page.contentFile] = kept;
@@ -56,6 +58,6 @@ export async function generateContent(slug, { overwrite = false, template = fals
 
 if (process.argv[1]?.endsWith('generate-content.mjs')) {
   const a = parseArgs();
-  generateContent(a.site || a._[0], { overwrite: !!a.overwrite, template: !!a.template })
+  generateContent(a.site || a._[0], { overwrite: !!a.overwrite, template: !!a.template, upgrade: !!a.upgrade })
     .catch(e => { console.error('✗', e.message); process.exit(1); });
 }

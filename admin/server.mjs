@@ -133,7 +133,7 @@ const jobs = new Map();
 let jobSeq = 0;
 
 const JOB_TYPES = {
-  content:   { label: 'Generate content', needsSite: true, cmd: (o) => ['scripts/generate-content.mjs', '--site', o.site, ...(o.overwrite ? ['--overwrite'] : []), ...(o.template ? ['--template'] : [])] },
+  content:   { label: 'Generate content', needsSite: true, cmd: (o) => ['scripts/generate-content.mjs', '--site', o.site, ...(o.overwrite ? ['--overwrite'] : []), ...(o.template ? ['--template'] : []), ...(o.upgrade ? ['--upgrade'] : [])] },
   build:     { label: 'Build site', needsSite: true, cmd: (o) => ['scripts/build.mjs', '--site', o.site] },
   preview:   { label: 'Preview (dev server)', needsSite: true, long: true, cmd: (o) => ['scripts/build.mjs', '--site', o.site, '--dev'] },
   deploy:    { label: 'Deploy to Cloudflare', needsSite: true, cmd: (o) => ['scripts/deploy.mjs', '--site', o.site] },
@@ -436,6 +436,20 @@ route('GET', '/api/leads', () => {
   return { lastPull: db.lastPull || {}, leads: Object.values(db.leads).sort((a, b) => b.created_at.localeCompare(a.created_at)) };
 });
 route('PATCH', '/api/leads/:id', async ({ id }, req) => updateLead(id, await readBody(req)));
+
+// Guides: repo docs shown inside the admin (allowlisted files only).
+const DOCS = {
+  'setup-windows': { title: 'Windows setup, step by step', file: 'docs/SETUP-WINDOWS.md' },
+  'call-scripts': { title: 'Call scripts', file: 'docs/CALL-SCRIPTS.md' },
+  'next-steps': { title: 'Next steps checklist', file: 'docs/NEXT-STEPS.md' },
+  plan: { title: 'Business plan & architecture', file: 'docs/PLAN.md' }
+};
+route('GET', '/api/docs', () => Object.entries(DOCS).map(([id, d]) => ({ id, title: d.title, exists: fs.existsSync(path.join(ROOT, d.file)) })));
+route('GET', '/api/docs/:id', ({ id }) => {
+  const d = DOCS[id];
+  if (!d) throw new HttpError(404, 'No such guide');
+  return { id, title: d.title, markdown: fs.readFileSync(path.join(ROOT, d.file), 'utf8') };
+});
 
 // Settings
 route('GET', '/api/settings', async () => {

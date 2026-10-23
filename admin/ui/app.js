@@ -25,6 +25,8 @@ const routes = [
   [/^#\/verticals$/, verticalsList, 'verticals'],
   [/^#\/vertical\/([\w-]+)$/, verticalEditor, 'verticals'],
   [/^#\/jobs$/, jobsView, 'jobs'],
+  [/^#\/guides$/, guidesList, 'guides'],
+  [/^#\/guide\/([\w-]+)$/, guideView, 'guides'],
   [/^#\/settings$/, settingsView, 'settings']
 ];
 let lastHash = location.hash;
@@ -182,6 +184,8 @@ async function siteSettingsTab(body, slug, site) {
     brand: { hint: 'Shown in the header, titles and consent text.' },
     domain: { hint: 'Your custom domain, without https://' },
     state: { hint: 'Two-letter code, e.g. TX' },
+    bookingUrl: { label: 'Booking link', placeholder: 'https://cal.com/yourname/quote-call', hint: 'Optional but recommended. A free Cal.com or Google Calendar appointment link. After submitting the form, leads pick a call time that fits your schedule.' },
+    consentAbout: { label: 'Consent covers', widget: 'textarea', rows: 2, hint: 'What the named companies may contact the lead about. Shown word-for-word in the consent box. Only offer things listed here.' },
     maxCityPages: { label: 'Max city pages', hint: 'Cap per service. Start with 20–50 total pages per site; grow once indexed.' },
     cities: { itemLabel: 'city', template: { name: '', slug: '', localNotes: '' }, hint: 'Each city becomes one page per service. Slug fills in automatically from the name if left blank.' },
     'cities.*.localNotes': { widget: 'textarea', label: 'Local facts', hint: 'Verified facts about this city (major employers, housing, retirement communities, hospitals). The AI must use these and is told not to invent others. This is what makes city pages genuinely useful.', rows: 3 },
@@ -228,6 +232,7 @@ async function sitePagesTab(body, slug) {
   body.append(
     h('div.filters', q, sel,
       h('button.btn', { onclick: (e) => act(e.target, () => runJob('content', { site: slug }, { onDone: () => render() })) }, 'Write missing pages'),
+      h('button.btn', { title: 'Rewrites only pages that still use template text. Pages you or the AI already wrote are kept.', onclick: (e) => act(e.target, () => runJob('content', { site: slug, upgrade: true }, { onDone: () => render() })) }, 'Upgrade template pages with AI'),
       h('button.btn', { onclick: (e) => confirm('Regenerate EVERY page? This overwrites your edits on this site.') && act(e.target, () => runJob('content', { site: slug, overwrite: true }, { onDone: () => render() })) }, 'Regenerate all'),
       h('button.btn', { onclick: async (e) => { if (!confirm('Mark every page as reviewed? Only do this after you have actually read them.')) return; await act(e.target, () => api(`/api/sites/${slug}/review-all`, { method: 'POST', body: { reviewed: true } }), 'All pages marked reviewed'); render(); } }, 'Mark all reviewed')),
     h('div.table-wrap', h('table', h('thead', h('tr', ['Page', 'Type', 'Source', 'Words', 'Flags', 'Review'].map(t => h('th', t)))), tbody))
@@ -367,7 +372,69 @@ async function leadsView() {
   draw();
 }
 
-function leadDrawer(l, redraw) {
+// ------------------------------------------------------------ quote sheet ---
+// Turns a lead's answers into a call-ready summary: labeled answers in form
+// order, age and BMI, a rough underwriting read, and the call checklist.
+const verticalCache = {};
+async function getVertical(id) {
+  if (!verticalCache[id]) verticalCache[id] = await api(`/api/verticals/${id}`).catch(() => null);
+  return verticalCache[id];
+}
+function ageOf(dob) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(dob || '');
+  if (!m) return null;
+  const n = new Date(); let a = n.getFullYear() - +m[1];
+  if (n.getMonth() + 1 < +m[2] || (n.getMonth() + 1 === +m[2] && n.getDate() < +m[3])) a--;
+  return a;
+}
+function quoteSheet(l, v, answers) {
+  const fields = v ? v.form.steps.flatMap(s => s.fields) : [];
+  const label = (k) => fields.find(f => f.name === k)?.label?.replace(/ /g, '').trim() || k.replace(/_/g, ' ');
+  const svcName = (slug) => v?.services.find(s => s.slug === slug)?.name || slug;
+  const show = (k, val) => (Array.isArray(val) ? val.join(', ') : k === 'service' ? svcName(val) : String(val));
+  const rows = [];
+  const age = ageOf(answers.dob);
+  if (age !== null) rows.push(['Age', `${age} (DOB ${answers.dob})`]);
+  if (answers.height_ft) {
+    const inches = Number(answers.height_ft) * 12 + Number(answers.height_in || 0);
+    const bmi = inches && answers.weight ? (703 * Number(answers.weight) / (inches * inches)).toFixed(1) : null;
+    rows.push(['Build', `${answers.height_ft}'${answers.height_in || 0}" · ${answers.weight || '?'} lbs${bmi ? ` · BMI ${bmi}` : ''}`]);
+  }
+  const skip = new Set(['dob', 'height_ft', 'height_in', 'weight']);
+  const ordered = [...fields.map(f => f.name).filter(k => k in answers), ...Object.keys(answers).filter(k => !fields.some(f => f.name === k))];
+  for (const k of ordered) if (!skip.has(k) && answers[k] !== '' && answers[k] != null && !(Array.isArray(answers[k]) && !answers[k].length)) rows.push([label(k), show(k, answers[k])]);
+  if (l.service && !('service' in answers)) rows.unshift(['Coverage type', svcName(l.service)]);
+
+  // Underwriting triage (life only)
+  let triage = null;
+  const uw = v?.underwriting;
+  if (uw) {
+    const c = Array.isArray(answers.conditions) ? answers.conditions : [];
+    const hit = (list) => c.filter(x => (list || []).includes(x));
+    const gi = hit(uw.guaranteedIssue), gr = hit(uw.graded), wa = hit(uw.watch);
+    const tob = answers.tobacco && !/^(Never|Quit more)/.test(answers.tobacco);
+    triage = gi.length ? ['bad', 'Guaranteed-issue likely', gi.join(', ')]
+      : gr.length ? ['warn', 'Graded / modified likely (some carriers may offer level)', gr.join(', ')]
+      : wa.length ? ['info', 'Level / standard possible with the right carrier', wa.join(', ')]
+      : c.includes('None of these') ? ['ok', 'Preferred / level likely', 'No listed conditions']
+      : ['', 'Health not answered', ''];
+    if (tob) triage[2] = [triage[2], 'tobacco/nicotine rates'].filter(Boolean).join(' · ');
+    if (age !== null && age > 85) triage = ['bad', 'Over most carriers\' issue ages (85)', triage[2]];
+  }
+  const text = [`${l.first_name} ${l.last_name} · ${l.phone} · ${l.email} · ZIP ${l.zip}${l.city ? ' (' + l.city + ')' : ''}`,
+    ...rows.map(([k, val]) => `${k}: ${val}`), triage ? `Underwriting read: ${triage[1]}${triage[2] ? ' (' + triage[2] + ')' : ''}` : ''].filter(Boolean).join('\n');
+  const copy = h('button.btn.sm', { onclick: async () => { try { await navigator.clipboard.writeText(text); toast('Quote sheet copied'); } catch { toast('Copy failed — select the text instead', 'bad'); } } }, 'Copy');
+  return h('div',
+    h('div.card', h('div.row', h('h3', { style: { margin: 0 } }, 'Quote sheet'), h('span', { style: { marginLeft: 'auto' } }), copy),
+      triage && h('p', pill(triage[1], triage[0]), triage[2] && h('span.muted.small', ' ', triage[2])),
+      h('dl.kv', rows.map(([k, val]) => [h('dt', k), h('dd', val)])),
+      triage && h('p.muted.small', 'Rough guide only. Carrier underwriting rules differ; check your carrier guides before quoting.')),
+    v?.callChecklist?.length > 0 && h('div.card', h('h3', 'Still to gather on the call'),
+      h('ul.check', v.callChecklist.map(item => h('li', h('input', { type: 'checkbox' }), h('span', item))))));
+}
+
+async function leadDrawer(l, redraw) {
+  const v = await getVertical(l.vertical);
   let answers = {};
   try { answers = JSON.parse(l.answers_json || l.answers || '{}'); } catch {}
   let utm = {};
@@ -393,7 +460,8 @@ function leadDrawer(l, redraw) {
       h('label.f', h('span', 'Notes'), notes),
       save),
     h('div.card', h('h3', 'Details'), kv({ site: l.site, service: l.service, city: l.city, zip: l.zip, received: fmtDate(l.created_at), duplicate_of: l.duplicate_of, suggested_price: l.suggested_price && money(l.suggested_price) })),
-    Object.keys(answers).length > 0 && h('div.card', h('h3', 'Answers'), kv(answers)),
+    quoteSheet(l, v, answers),
+    h('p', h('a.btn.sm', { href: `#/guide/call-scripts`, onclick: () => close() }, 'Open call scripts')),
     h('div.card', h('h3', 'Consent proof'), h('p.small', l.consent_text || '(consent text not pulled)'),
       kv({ consented_at: l.consent_at, ip: l.ip, page: l.page_url, referrer: l.referrer, time_on_page_s: l.time_on_page_s, consent_hash: l.consent_hash, ...utm }))
   ));
@@ -483,6 +551,25 @@ async function verticalEditor(id) {
   drawForm(v);
   view.replaceChildren(head(v.label, `verticals/${id}.json`), tabs, holder,
     h('div.sticky-bar', saveBtn, h('span.muted.small', 'Applies to every site using this vertical on its next build. New services need content generated.')));
+}
+
+// ------------------------------------------------------------------ guides ---
+async function guidesList() {
+  setCrumbs('Guides');
+  const docs = await api('/api/docs');
+  view.replaceChildren(head('Guides', 'Step-by-step help and call scripts.'),
+    h('div.grid', docs.filter(d => d.exists).map(d => h('a.card', { href: `#/guide/${d.id}`, style: { textDecoration: 'none', color: 'inherit' } }, h('h2', d.title)))));
+}
+async function guideView(id) {
+  const d = await api(`/api/docs/${id}`);
+  setCrumbs(['Guides', '#/guides'], d.title);
+  // These are trusted files from the repo's docs/ folder (never lead data),
+  // so rendering their Markdown as HTML is safe here.
+  const body = h('article.card.guide');
+  body.innerHTML = marked.parse(d.markdown);
+  // Checklists in guides become clickable for the current session.
+  body.querySelectorAll('input[type=checkbox]').forEach(cb => (cb.disabled = false));
+  view.replaceChildren(h('div.row', { style: { justifyContent: 'flex-end', marginBottom: '8px' } }, h('button.btn.sm', { onclick: () => window.print() }, 'Print')), body);
 }
 
 // -------------------------------------------------------------------- jobs ---
