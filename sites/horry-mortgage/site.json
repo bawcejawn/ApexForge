@@ -1,0 +1,71 @@
+{
+  "_comment": "Mortgage site. You call each lead first to check quality, then introduce them to your lender partner. Both of you must be named in buyers. Replace every TODO in the admin.",
+  "slug": "horry-mortgage",
+  "brand": "Grand Strand Mortgage Match",
+  "domain": "TODO-yourdomain.com",
+  "vertical": "mortgage",
+  "state": "SC",
+  "stateName": "South Carolina",
+  "consentAbout": "home loans and refinancing, including mortgage protection life insurance",
+  "cities": [
+    {
+      "name": "Myrtle Beach",
+      "slug": "myrtle-beach-sc",
+      "localNotes": "Myrtle Beach's median single-family sale price was about $525,000 in 2025 (Coastal Carolinas Association of REALTORS data reported by MyHorryNews). Coastal buyers should budget for flood and wind insurance, which lenders may require and which affect the monthly payment."
+    },
+    {
+      "name": "Conway",
+      "slug": "conway-sc",
+      "localNotes": "Conway's 2025 median single-family sale price was about $312,000, making it one of the more affordable places in Horry County to buy."
+    },
+    {
+      "name": "Carolina Forest",
+      "slug": "carolina-forest-sc",
+      "localNotes": "Carolina Forest's 2025 median single-family sale price was about $445,000. Much of the housing is newer construction."
+    },
+    {
+      "name": "North Myrtle Beach",
+      "slug": "north-myrtle-beach-sc",
+      "localNotes": "North Myrtle Beach's 2025 median single-family sale price was about $560,000. Many buyers here purchase second homes, which are financed and taxed differently from a primary residence (Horry County assesses primary homes at 4% and second homes at 6%)."
+    },
+    {
+      "name": "Surfside Beach",
+      "slug": "surfside-beach-sc",
+      "localNotes": "Surfside Beach's 2025 median single-family sale price was about $410,000, up from about $395,000 in 2024."
+    },
+    {
+      "name": "Little River",
+      "slug": "little-river-sc",
+      "localNotes": "Little River's 2025 median single-family sale price was about $355,000, slightly lower than in 2024."
+    }
+  ],
+  "maxCityPages": 6,
+  "bookingUrl": "",
+  "operator": {
+    "legalName": "TODO Your LLC legal name",
+    "address": "TODO Street, City, SC ZIP",
+    "email": "TODO@yourdomain.com"
+  },
+  "buyers": [
+    {
+      "name": "TODO Your LLC name",
+      "license": ""
+    },
+    {
+      "name": "TODO Partner Loan Officer Name, Company Name",
+      "license": "NMLS #TODO"
+    }
+  ],
+  "author": {
+    "name": "TODO Partner Loan Officer Name",
+    "credentials": "Licensed mortgage loan originator (NMLS #TODO)",
+    "bio": "TODO A sentence about your partner's lending experience in Horry County."
+  },
+  "theme": {
+    "primary": "#1f4e3d",
+    "accent": "#d4a017"
+  },
+  "analytics": {
+    "cloudflareBeaconToken": ""
+  }
+}

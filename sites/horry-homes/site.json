@@ -1,0 +1,86 @@
+{
+  "_comment": "Real estate site. You call each lead first to check quality, then introduce them to your realtor partner. Both of you must be named in buyers. Replace every TODO in the admin.",
+  "slug": "horry-homes",
+  "brand": "Grand Strand Home Value",
+  "domain": "TODO-yourdomain.com",
+  "vertical": "real-estate",
+  "state": "SC",
+  "stateName": "South Carolina",
+  "consentAbout": "buying or selling a home, including related home financing and mortgage protection life insurance",
+  "cities": [
+    {
+      "name": "Myrtle Beach",
+      "slug": "myrtle-beach-sc",
+      "localNotes": "Myrtle Beach's median single-family sale price was about $525,000 in 2025, up from about $515,000 in 2024 (Coastal Carolinas Association of REALTORS data reported by MyHorryNews). Homes across Horry County sold for roughly 95-98% of list price in 2025."
+    },
+    {
+      "name": "Conway",
+      "slug": "conway-sc",
+      "localNotes": "Conway's 2025 median single-family sale price was about $312,000, up from about $299,000 in 2024. It is the county seat and home to Coastal Carolina University, and it draws families looking for more space at lower prices than the beach."
+    },
+    {
+      "name": "North Myrtle Beach",
+      "slug": "north-myrtle-beach-sc",
+      "localNotes": "North Myrtle Beach's 2025 median single-family sale price was about $560,000, slightly down from about $573,000 in 2024. Many properties are second homes or short-term rentals, and the city has its own short-term rental rules."
+    },
+    {
+      "name": "Carolina Forest",
+      "slug": "carolina-forest-sc",
+      "localNotes": "Carolina Forest's 2025 median single-family sale price was about $445,000, up from about $425,000 in 2024. Newer construction and larger lots make it popular with families and remote workers."
+    },
+    {
+      "name": "Surfside Beach",
+      "slug": "surfside-beach-sc",
+      "localNotes": "Surfside Beach's 2025 median single-family sale price was about $410,000, up from about $395,000 in 2024. Lower-maintenance homes near the beach draw many retirees."
+    },
+    {
+      "name": "Little River",
+      "slug": "little-river-sc",
+      "localNotes": "Little River's 2025 median single-family sale price was about $355,000, slightly down from about $368,000 in 2024. Its older population has grown quickly, with many newcomers arriving from outside the county."
+    },
+    {
+      "name": "Socastee",
+      "slug": "socastee-sc",
+      "localNotes": "Socastee's 2025 median single-family sale price was about $360,000, up slightly from about $355,000 in 2024."
+    },
+    {
+      "name": "Loris",
+      "slug": "loris-sc",
+      "localNotes": "The Loris and Longs area had a 2025 median single-family sale price of about $302,000, among the most affordable in Horry County."
+    },
+    {
+      "name": "Aynor",
+      "slug": "aynor-sc",
+      "localNotes": "Aynor is a small inland town in western Horry County. Its 2025 median single-family sale price was about $317,000, up from about $311,000 in 2024."
+    }
+  ],
+  "maxCityPages": 9,
+  "bookingUrl": "",
+  "operator": {
+    "legalName": "TODO Your LLC legal name",
+    "address": "TODO Street, City, SC ZIP",
+    "email": "TODO@yourdomain.com"
+  },
+  "buyers": [
+    {
+      "name": "TODO Your LLC name",
+      "license": ""
+    },
+    {
+      "name": "TODO Partner Realtor Name, Brokerage Name",
+      "license": "SC Real Estate License #TODO"
+    }
+  ],
+  "author": {
+    "name": "TODO Partner Realtor Name",
+    "credentials": "Licensed South Carolina REALTOR",
+    "bio": "TODO A sentence about your partner's experience in Horry County."
+  },
+  "theme": {
+    "primary": "#12355b",
+    "accent": "#f2a541"
+  },
+  "analytics": {
+    "cloudflareBeaconToken": ""
+  }
+}

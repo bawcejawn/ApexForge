@@ -1,0 +1,76 @@
+{
+  "_comment": "Your life insurance site. You are the licensed agent who calls these leads. Replace every TODO in the admin (Sites > Grand Strand Life Quotes > Settings).",
+  "slug": "horry-life",
+  "brand": "Grand Strand Life Quotes",
+  "domain": "TODO-yourdomain.com",
+  "vertical": "life-insurance",
+  "state": "SC",
+  "stateName": "South Carolina",
+  "cities": [
+    {
+      "name": "Myrtle Beach",
+      "slug": "myrtle-beach-sc",
+      "localNotes": "Myrtle Beach's median single-family sale price was about $525,000 in 2025 (Coastal Carolinas Association of REALTORS data reported by MyHorryNews). The city has about 9,100 residents age 65 and older, and roughly nine in ten recent older arrivals moved from another state. Grand Strand Medical Center is located here."
+    },
+    {
+      "name": "Conway",
+      "slug": "conway-sc",
+      "localNotes": "Conway is the Horry County seat and home to Coastal Carolina University and Conway Medical Center. Its 2025 median single-family sale price was about $312,000, one of the more affordable areas in the county."
+    },
+    {
+      "name": "North Myrtle Beach",
+      "slug": "north-myrtle-beach-sc",
+      "localNotes": "North Myrtle Beach's 65-and-older population grew from about 6,000 to about 8,300 in recent years. The 2025 median single-family sale price was about $560,000, slightly lower than in 2024. Many homes here are second homes or short-term rentals."
+    },
+    {
+      "name": "Surfside Beach",
+      "slug": "surfside-beach-sc",
+      "localNotes": "Surfside Beach's 2025 median single-family sale price was about $410,000, up from about $395,000 in 2024. The area is popular with retirees looking for lower-maintenance homes near the beach."
+    },
+    {
+      "name": "Little River",
+      "slug": "little-river-sc",
+      "localNotes": "Little River's population age 65 and older rose from about 3,500 to nearly 5,000 in recent years, and about one in ten older residents moved in from outside Horry County within a year. The 2025 median single-family sale price was about $355,000."
+    },
+    {
+      "name": "Carolina Forest",
+      "slug": "carolina-forest-sc",
+      "localNotes": "Carolina Forest is known for newer construction and is popular with families and remote workers. The 2025 median single-family sale price was about $445,000, up from about $425,000 in 2024."
+    },
+    {
+      "name": "Socastee",
+      "slug": "socastee-sc",
+      "localNotes": "Socastee's 2025 median single-family sale price was about $360,000, a mid-range price point for Horry County."
+    },
+    {
+      "name": "Loris",
+      "slug": "loris-sc",
+      "localNotes": "The Loris and Longs area had a 2025 median single-family sale price of about $302,000, among the most affordable in Horry County. McLeod Health Loris serves the area."
+    }
+  ],
+  "maxCityPages": 8,
+  "bookingUrl": "",
+  "operator": {
+    "legalName": "TODO Your Agency or LLC legal name",
+    "address": "TODO Street, City, SC ZIP",
+    "email": "TODO@yourdomain.com"
+  },
+  "buyers": [
+    {
+      "name": "TODO Your Name or Agency Name",
+      "license": "SC Insurance Producer License #TODO"
+    }
+  ],
+  "author": {
+    "name": "TODO Your Name",
+    "credentials": "Licensed South Carolina life insurance agent",
+    "bio": "TODO One or two sentences: how long you've been licensed, that you live and work in Horry County, and what you help families with."
+  },
+  "theme": {
+    "primary": "#0f3d3e",
+    "accent": "#e0a526"
+  },
+  "analytics": {
+    "cloudflareBeaconToken": ""
+  }
+}
