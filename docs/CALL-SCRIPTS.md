@@ -155,7 +155,7 @@ Every first text includes your name, business and the opt-out.
 
 **Open**
 
-> "Hi, is this {first name}? Hi, this is **{Your Name}** with **{Your LLC}**. I'm calling because you asked about {selling your home / your home's value / buying a home} on **{Brand}**. My number is **{callback number}**. Do you have two minutes?"
+> "Hi, is this {first name}? Hi, this is **{Your Name}** with **{Your S-Corp}**. I'm calling because you asked about {selling your home / your home's value / buying a home} on **{Brand}**. My number is **{callback number}**. Do you have two minutes?"
 
 **Confirm and qualify (3 minutes).** The form already has most of this; confirm it and fill the gaps.
 
@@ -173,11 +173,16 @@ Every first text includes your name, business and the opt-out.
 3. "Do you need to sell a home before you buy?"
 4. "Are you working with an agent already?" *(If yes, stop here — same as above.)*
 
-**Hand off**
+**Hand off (get permission first — this is what lets your partner contact them)**
 
-> "Thanks, this is really helpful. I work with **{Partner}** at **{Brokerage}**, who's a licensed REALTOR and does a lot of business in {City}. They can {run a market analysis on your home / set up showings} and answer all the pricing questions. Is it okay if {Partner} reaches out to you today? What's the best time?"
+> "Thanks, this is really helpful. I work with **{Partner}** at **{Brokerage}**, who's a licensed REALTOR and does a lot of business in {City}. They can {run a market analysis on your home / set up showings} and answer all the pricing questions. **Is it okay if I share your information with {Partner} and have them call you?** What's the best time?"
 
-*Better: offer a warm three-way call right now — "I can get them on the line now if that's easier." Then text {Partner} the summary and set status **qualified** (or **sold** once they accept it).*
+*Only after a clear "yes":*
+1. *In the admin, open the lead and add a note like: **"Verbal OK on {date} {time} to introduce {Partner}, {Brokerage}."** That note is your proof of permission, because your partner wasn't named on the website form.*
+2. *Best option: a warm three-way call right now — "I can get them on the line now if that's easier."* Otherwise text {Partner} the summary.
+3. *Set **Buyer** to the partner's name and status **sold** (or **qualified** until they accept it).*
+
+*If they say no, or want to think about it: don't pass their information on. Note it, and follow up yourself.*
 
 **Optional cross-offer** *(only if the consent text on the lead covers mortgage protection — the admin shows it):*
 > "One more thing — I'm also a licensed life insurance agent. When you're settled into the new place, I help homeowners make sure the mortgage would be paid off if something happened. Want me to send you a quick quote down the road?"
@@ -190,7 +195,7 @@ Every first text includes your name, business and the opt-out.
 
 **Open**
 
-> "Hi, is this {first name}? Hi, this is **{Your Name}** with **{Your LLC}**. You asked about {a home loan / refinancing / a home equity line} on **{Brand}**. My number is **{callback number}**. Got two minutes?"
+> "Hi, is this {first name}? Hi, this is **{Your Name}** with **{Your S-Corp}**. You asked about {a home loan / refinancing / a home equity line} on **{Brand}**. My number is **{callback number}**. Got two minutes?"
 
 **Confirm and qualify**
 
@@ -201,11 +206,11 @@ Every first text includes your name, business and the opt-out.
 5. "Have you or your spouse served in the military?" *(VA may be an option — mention it to the loan officer.)*
 6. "Anything going on with your credit or income the lender should know about? No details needed — just so they come prepared."
 
-**Hand off**
+**Hand off (get permission first)**
 
-> "Perfect. I work with **{Partner}**, a licensed loan officer with **{Company}** (NMLS #{number}). They'll go over rates and what you qualify for — I don't quote those myself. Is it okay if they call you today? What time's best?"
+> "Perfect. I work with **{Partner}**, a licensed loan officer with **{Company}** (NMLS #{number}). They'll go over rates and what you qualify for — I don't quote those myself. **Is it okay if I share your information with {Partner} and have them call you?** What time's best?"
 
-*Warm three-way call if you can. Text {Partner} the summary, set status **qualified**.*
+*Only after a clear "yes": add the note **"Verbal OK on {date} {time} to introduce {Partner}, {Company}"**, do a warm three-way call if you can (or text {Partner} the summary), then set Buyer and status.*
 
 **Optional cross-offer** *(if consent covers it):* same as real estate — offer a mortgage protection quote after closing.
 
@@ -220,7 +225,7 @@ You already know these people. Keep it short and specific.
 > I'd like to send you the first **5 verified leads free** so you can judge the quality yourself. If you like them, we set a flat price per verified lead, with a weekly cap you choose. If a lead turns out to be a bad number or a duplicate, I replace it. Interested?"
 
 **Get from each partner before launch:**
-- Exact name and brokerage/company **as it should appear in the consent box** (their name must be on the form for them to contact the lead)
+- Exact name, brokerage/company and license or NMLS number (for your intro script now, and for the consent box later if you ever let them contact leads directly)
 - License number (SC real estate license or NMLS)
 - Which cities/price ranges they want, and their weekly cap
 - Best way to receive leads (text, email) and how fast they'll call (ask for same-day)

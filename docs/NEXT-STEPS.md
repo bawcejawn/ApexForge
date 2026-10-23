@@ -6,6 +6,15 @@
 
 Detailed click-by-click instructions with status checks are in **[SETUP-WINDOWS.md](SETUP-WINDOWS.md)**. Call scripts are in **[CALL-SCRIPTS.md](CALL-SCRIPTS.md)**. Both are also in the admin under **Guides & scripts**.
 
+## This week — license and E&O first (deadline Oct 31)
+
+You can keep building the site this week, but **don't launch or take a lead until your license shows Active and your E&O certificate is current.** The full checklist is in the Project doc *Licensing & E&O checklist*.
+
+- [ ] Check your CE transcript (24 hours: 3 ethics, 8 life/health) and finish any missing hours
+- [ ] Renew your SC producer license on NIPR (after CE posts)
+- [ ] Confirm or renew E&O through Symmetry's CalSurance program with no gap in coverage
+- [ ] Ask your upline whether Symmetry needs to approve your own website, and whether your S-Corp needs an SC agency license (it does if commissions are paid to the S-Corp)
+
 ## Week 1 — get the life site live
 
 - [ ] Setup Parts 1–4: tools installed, admin open *(1 hour)*
@@ -14,18 +23,17 @@ Detailed click-by-click instructions with status checks are in **[SETUP-WINDOWS.
 - [ ] Part 6: upgrade pages with AI and review them (a few nights)
 - [ ] Part 7: booking link
 - [ ] Parts 8–10: Cloudflare, deploy, test lead, Search Console
-- [ ] Ask your IMO/upline for their free quoting tool, so the quote sheet → quote step takes minutes
+- [ ] Refresh on Symmetry's **Navigator** quoting tool (in HQ) so the quote sheet → quote step takes minutes
 
 ## Week 2 — line up partners (no website work needed)
 
-- [ ] Pick **one realtor** and **one lender** to start. Use the pitch in *Call scripts, Part 4*.
-- [ ] Get from each: name + company exactly as it should appear in consent, license/NMLS #, cities, weekly cap, how they want leads sent.
+- [ ] Pick **one realtor** and **one lender** to start. Use the pitch in *Call scripts, Part 4* and the agreement in *Working with partners* (docs/PARTNER-AGREEMENT.md).
+- [ ] Get from each: name, company, license/NMLS #, cities, weekly cap, how they want introductions.
 - [ ] Have each confirm the flat per-lead fee structure with their broker-in-charge / compliance team.
-- [ ] Form or confirm your LLC for the real-estate and mortgage sites.
 
 ## Week 3 — launch real estate + mortgage
 
-- [ ] In the admin, fill in **Grand Strand Home Value** and **Grand Strand Mortgage Match** (your LLC + the partner in **Buyers**), same Parts 5–10 as the life site.
+- [ ] In the admin, fill in **Grand Strand Home Value** and **Grand Strand Mortgage Match** (your S-Corp is the only buyer; partners float), same Parts 5–10 as the life site.
 - [ ] Send each partner their first 5 verified leads free.
 
 ## Weeks 4–8 — measure, then decide

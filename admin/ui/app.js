@@ -455,7 +455,7 @@ async function leadDrawer(l, redraw) {
     h('p', h('a.btn', { href: `tel:${l.phone}` }, '📞 ', l.phone), ' ', l.email && h('a.btn', { href: `mailto:${l.email}` }, '✉ ', l.email)),
     h('div.card', h('h3', 'Work this lead'),
       h('label.f', h('span', 'Status'), status),
-      h('label.f', h('span', 'Buyer'), buyer, h('span.hint', 'Only sell to the company named in this lead\'s consent (below).')),
+      h('label.f', h('span', 'Buyer'), buyer, h('span.hint', 'Only pass a lead to a company named in its consent (below), or to a partner the lead agreed to on your call. Record that OK in Notes.')),
       h('label.f', h('span', 'Sold price ($)'), price),
       h('label.f', h('span', 'Notes'), notes),
       save),

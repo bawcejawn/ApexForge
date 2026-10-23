@@ -442,6 +442,7 @@ const DOCS = {
   'setup-windows': { title: 'Windows setup, step by step', file: 'docs/SETUP-WINDOWS.md' },
   'call-scripts': { title: 'Call scripts', file: 'docs/CALL-SCRIPTS.md' },
   'next-steps': { title: 'Next steps checklist', file: 'docs/NEXT-STEPS.md' },
+  partners: { title: 'Working with partners (how you get paid)', file: 'docs/PARTNER-AGREEMENT.md' },
   plan: { title: 'Business plan & architecture', file: 'docs/PLAN.md' }
 };
 route('GET', '/api/docs', () => Object.entries(DOCS).map(([id, d]) => ({ id, title: d.title, exists: fs.existsSync(path.join(ROOT, d.file)) })));
