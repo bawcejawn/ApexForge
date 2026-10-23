@@ -3,7 +3,7 @@
   "id": "life-insurance",
   "label": "Life Insurance",
   "heroTitle": "Compare life insurance quotes in {{city}}",
-  "heroSub": "Answer a few questions and a licensed agent will walk you through options from multiple carriers. No cost, no obligation.",
+  "heroSub": "Answer a few questions (about 3 minutes) and a licensed Horry County agent will come back with real quotes from multiple carriers. No cost, no obligation, no medical exam to get a quote.",
   "cta": "Get my free quote",
   "audience": "adults 25-80 protecting family income, a mortgage, or final expenses",
   "services": [
@@ -13,8 +13,14 @@
       "keyword": "term life insurance",
       "angle": "affordable fixed-period coverage to replace income and protect a mortgage while kids are young",
       "faqs": [
-        { "q": "How much term life insurance do I need?", "a": "A common starting point is 10–12 times your annual income, adjusted for your mortgage, debts, children's education goals, and savings. A licensed agent can run the numbers with you." },
-        { "q": "What happens when my term ends?", "a": "Coverage stops unless the policy is renewable or convertible. Many term policies let you convert to permanent coverage without a new medical exam before a set age." }
+        {
+          "q": "How much term life insurance do I need?",
+          "a": "A common starting point is 10–12 times your annual income, adjusted for your mortgage, debts, children's education goals, and savings. A licensed agent can run the numbers with you."
+        },
+        {
+          "q": "What happens when my term ends?",
+          "a": "Coverage stops unless the policy is renewable or convertible. Many term policies let you convert to permanent coverage without a new medical exam before a set age."
+        }
       ]
     },
     {
@@ -23,7 +29,10 @@
       "keyword": "whole life insurance",
       "angle": "permanent coverage with level premiums and cash value for people who want lifelong protection",
       "faqs": [
-        { "q": "Is whole life worth the higher premium?", "a": "It depends on your goals. Whole life costs more than term but lasts your entire life and builds cash value. It tends to fit people with permanent needs such as estate planning or a lifelong dependent." }
+        {
+          "q": "Is whole life worth the higher premium?",
+          "a": "It depends on your goals. Whole life costs more than term but lasts your entire life and builds cash value. It tends to fit people with permanent needs such as estate planning or a lifelong dependent."
+        }
       ]
     },
     {
@@ -32,8 +41,14 @@
       "keyword": "final expense insurance",
       "angle": "small whole life policies (often $5k–$35k) for seniors to cover funeral costs and final bills, frequently with simplified underwriting",
       "faqs": [
-        { "q": "Can I get final expense insurance without a medical exam?", "a": "Many final expense policies use simplified issue underwriting, meaning a health questionnaire instead of an exam. Some guaranteed-issue options exist, usually with a waiting period." },
-        { "q": "What ages qualify?", "a": "Most carriers offer final expense coverage to applicants roughly 50 to 85, though limits vary by carrier and state." }
+        {
+          "q": "Can I get final expense insurance without a medical exam?",
+          "a": "Many final expense policies use simplified issue underwriting, meaning a health questionnaire instead of an exam. Some guaranteed-issue options exist, usually with a waiting period."
+        },
+        {
+          "q": "What ages qualify?",
+          "a": "Most carriers offer final expense coverage to applicants roughly 50 to 85, though limits vary by carrier and state."
+        }
       ]
     },
     {
@@ -42,51 +57,436 @@
       "keyword": "mortgage protection insurance",
       "angle": "life coverage sized to a home loan so the family keeps the house if a borrower dies",
       "faqs": [
-        { "q": "Is mortgage protection the same as PMI?", "a": "No. PMI protects the lender if you stop paying. Mortgage protection life insurance pays your family, who can use it to pay off or keep paying the mortgage." }
+        {
+          "q": "Is mortgage protection the same as PMI?",
+          "a": "No. PMI protects the lender if you stop paying. Mortgage protection life insurance pays your family, who can use it to pay off or keep paying the mortgage."
+        }
       ]
     }
   ],
   "form": {
+    "_comment": "This is a pre-application: everything an agent needs to run quotes, so the first call is an offer. Never add SSN, bank or card fields here; those are collected only inside the carrier e-application.",
+    "intro": "About 3 minutes. Your answers let a licensed agent bring real prices to the first call.",
     "steps": [
       {
-        "title": "What are you looking for?",
+        "title": "Your coverage",
         "fields": [
-          { "name": "service", "label": "Coverage type", "type": "select", "required": true, "fromServices": true },
-          { "name": "coverage_amount", "label": "Coverage amount", "type": "select", "required": true,
-            "options": ["Under $25,000", "$25,000 - $100,000", "$100,000 - $250,000", "$250,000 - $500,000", "$500,000 - $1,000,000", "Over $1,000,000", "Not sure"] },
-          { "name": "age_range", "label": "Your age", "type": "select", "required": true,
-            "options": ["18-29", "30-39", "40-49", "50-59", "60-69", "70-79", "80+"] },
-          { "name": "tobacco", "label": "Used tobacco in the last 12 months?", "type": "select", "required": true, "options": ["No", "Yes"] }
+          {
+            "name": "service",
+            "label": "Type of coverage",
+            "type": "select",
+            "required": true,
+            "fromServices": true
+          },
+          {
+            "name": "coverage_reason",
+            "label": "Main reason",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Protect my family's income",
+              "Pay off my mortgage",
+              "Cover funeral and final expenses",
+              "Leave money to family",
+              "Replace or add to a policy I have",
+              "Not sure yet"
+            ]
+          },
+          {
+            "name": "coverage_amount",
+            "label": "Coverage amount",
+            "type": "select",
+            "required": true,
+            "options": [
+              "$10,000 - $25,000",
+              "$25,000 - $50,000",
+              "$50,000 - $100,000",
+              "$100,000 - $250,000",
+              "$250,000 - $500,000",
+              "$500,000 - $1,000,000",
+              "Over $1,000,000",
+              "Not sure"
+            ]
+          },
+          {
+            "name": "term_length",
+            "label": "How long do you need it?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "10 years",
+              "15 years",
+              "20 years",
+              "25 years",
+              "30 years",
+              "Until my mortgage is paid off",
+              "Not sure"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "term-life-insurance",
+                "mortgage-protection-insurance"
+              ]
+            }
+          },
+          {
+            "name": "mortgage_balance",
+            "label": "Mortgage balance",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Under $150,000",
+              "$150,000 - $250,000",
+              "$250,000 - $400,000",
+              "$400,000 - $600,000",
+              "Over $600,000"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "mortgage-protection-insurance"
+              ]
+            }
+          },
+          {
+            "name": "monthly_budget",
+            "label": "Comfortable monthly budget",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Under $30",
+              "$30 - $50",
+              "$50 - $100",
+              "$100 - $200",
+              "Over $200",
+              "Not sure"
+            ]
+          },
+          {
+            "name": "existing_coverage",
+            "label": "Coverage you have now",
+            "type": "select",
+            "required": true,
+            "options": [
+              "None",
+              "Only through work",
+              "A personal policy",
+              "Both work and personal"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "About you",
+        "help": "Insurance prices are based on age, sex, build and tobacco use.",
+        "fields": [
+          {
+            "name": "dob",
+            "label": "Date of birth",
+            "type": "date",
+            "required": true,
+            "autocomplete": "bday"
+          },
+          {
+            "name": "sex",
+            "label": "Sex (used for insurance pricing)",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Male",
+              "Female"
+            ]
+          },
+          {
+            "name": "height_ft",
+            "label": "Height",
+            "type": "number",
+            "required": true,
+            "min": 4,
+            "max": 7,
+            "unit": "ft",
+            "half": true
+          },
+          {
+            "name": "height_in",
+            "label": " ",
+            "type": "number",
+            "required": true,
+            "min": 0,
+            "max": 11,
+            "unit": "in",
+            "half": true
+          },
+          {
+            "name": "weight",
+            "label": "Weight",
+            "type": "number",
+            "required": true,
+            "min": 70,
+            "max": 600,
+            "unit": "lbs"
+          },
+          {
+            "name": "tobacco",
+            "label": "Tobacco or nicotine use",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Never",
+              "Quit more than 12 months ago",
+              "Cigarettes in the last 12 months",
+              "Vape or e-cigarette in the last 12 months",
+              "Cigars, pipe or chew in the last 12 months",
+              "Nicotine patch or gum in the last 12 months"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Your health",
+        "help": "Honest answers mean an accurate quote. This is not an application and doesn't commit you to anything.",
+        "fields": [
+          {
+            "name": "conditions",
+            "label": "Have you ever been diagnosed with or treated for any of these?",
+            "type": "multi",
+            "required": true,
+            "none": "None of these",
+            "options": [
+              "High blood pressure",
+              "High cholesterol",
+              "Diabetes (pills or diet)",
+              "Diabetes (insulin)",
+              "Heart attack, stents or heart surgery",
+              "Congestive heart failure",
+              "Stroke or TIA (mini-stroke)",
+              "Cancer (other than basic skin cancer)",
+              "COPD, emphysema or chronic bronchitis",
+              "Use oxygen",
+              "Kidney disease or dialysis",
+              "Liver disease or hepatitis",
+              "Sleep apnea",
+              "Anxiety or depression",
+              "Alcohol or drug treatment",
+              "In a nursing home, hospice, or need help with daily activities"
+            ]
+          },
+          {
+            "name": "condition_details",
+            "label": "For anything you checked: when was it diagnosed, and how is it treated now?",
+            "type": "textarea",
+            "required": false,
+            "placeholder": "e.g. Type 2 diabetes since 2019, metformin, A1C 6.8",
+            "showIf": {
+              "field": "conditions",
+              "notIn": [
+                "None of these"
+              ]
+            }
+          },
+          {
+            "name": "medications",
+            "label": "Medications you take regularly (optional)",
+            "type": "textarea",
+            "required": false,
+            "placeholder": "Names are enough, e.g. lisinopril, atorvastatin",
+            "help": "Helps us pick the carrier most likely to approve you at the best price."
+          },
+          {
+            "name": "hospital_2yr",
+            "label": "Any overnight hospital stay in the last 2 years?",
+            "type": "select",
+            "required": true,
+            "options": [
+              "No",
+              "Yes"
+            ],
+            "half": true
+          },
+          {
+            "name": "dui_5yr",
+            "label": "Any DUI in the last 5 years?",
+            "type": "select",
+            "required": true,
+            "options": [
+              "No",
+              "Yes"
+            ],
+            "half": true
+          }
         ]
       },
       {
         "title": "Where should we send your quotes?",
         "fields": [
-          { "name": "first_name", "label": "First name", "type": "text", "required": true, "autocomplete": "given-name" },
-          { "name": "last_name", "label": "Last name", "type": "text", "required": true, "autocomplete": "family-name" },
-          { "name": "zip", "label": "ZIP code", "type": "zip", "required": true, "autocomplete": "postal-code" },
-          { "name": "phone", "label": "Phone", "type": "tel", "required": true, "autocomplete": "tel" },
-          { "name": "email", "label": "Email", "type": "email", "required": true, "autocomplete": "email" },
-          { "name": "best_time", "label": "Best time to call", "type": "select", "required": false, "options": ["Morning", "Afternoon", "Evening", "Anytime"] }
+          {
+            "name": "first_name",
+            "label": "First name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "given-name",
+            "half": true
+          },
+          {
+            "name": "last_name",
+            "label": "Last name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "family-name",
+            "half": true
+          },
+          {
+            "name": "phone",
+            "label": "Mobile phone",
+            "type": "tel",
+            "required": true,
+            "autocomplete": "tel",
+            "half": true
+          },
+          {
+            "name": "zip",
+            "label": "ZIP code",
+            "type": "zip",
+            "required": true,
+            "autocomplete": "postal-code",
+            "half": true
+          },
+          {
+            "name": "email",
+            "label": "Email",
+            "type": "email",
+            "required": true,
+            "autocomplete": "email"
+          },
+          {
+            "name": "beneficiary",
+            "label": "Who would receive the money?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Spouse or partner",
+              "Children",
+              "Parent",
+              "Other family",
+              "Not sure yet"
+            ],
+            "help": "Just the relationship for now."
+          },
+          {
+            "name": "best_time",
+            "label": "Best time to reach you",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Weekday mornings",
+              "Weekday lunch",
+              "Weekday evenings",
+              "Weekends",
+              "Anytime"
+            ]
+          }
         ]
       }
     ]
   },
   "scoring": {
-    "_comment": "Points add up to a 0-100 score. Tier: A >= 70, B >= 45, else C. Price leads by tier.",
+    "_comment": "Points add up to a 0-100 score. Tier: A >= 70, B >= 45, else C. _age is computed from dob.",
     "rules": [
-      { "field": "coverage_amount", "in": ["$250,000 - $500,000", "$500,000 - $1,000,000", "Over $1,000,000"], "points": 30 },
-      { "field": "coverage_amount", "in": ["$100,000 - $250,000", "$25,000 - $100,000"], "points": 20 },
-      { "field": "age_range", "in": ["30-39", "40-49", "50-59"], "points": 20 },
-      { "field": "age_range", "in": ["60-69", "70-79"], "points": 15 },
-      { "field": "tobacco", "in": ["No"], "points": 10 },
-      { "field": "best_time", "present": true, "points": 5 },
-      { "field": "_phone_valid", "in": [true], "points": 20 },
-      { "field": "_time_on_page_s", "min": 20, "points": 10 },
-      { "field": "_email_freemail_disposable", "in": [true], "points": -40 }
+      {
+        "field": "coverage_amount",
+        "in": [
+          "$250,000 - $500,000",
+          "$500,000 - $1,000,000",
+          "Over $1,000,000"
+        ],
+        "points": 25
+      },
+      {
+        "field": "coverage_amount",
+        "in": [
+          "$25,000 - $50,000",
+          "$50,000 - $100,000",
+          "$100,000 - $250,000"
+        ],
+        "points": 20
+      },
+      {
+        "field": "coverage_amount",
+        "in": [
+          "$10,000 - $25,000"
+        ],
+        "points": 15
+      },
+      {
+        "field": "_age",
+        "min": 25,
+        "max": 59,
+        "points": 20
+      },
+      {
+        "field": "_age",
+        "min": 60,
+        "max": 80,
+        "points": 15
+      },
+      {
+        "field": "monthly_budget",
+        "in": [
+          "$30 - $50",
+          "$50 - $100",
+          "$100 - $200",
+          "Over $200"
+        ],
+        "points": 10
+      },
+      {
+        "field": "tobacco",
+        "in": [
+          "Never",
+          "Quit more than 12 months ago"
+        ],
+        "points": 5
+      },
+      {
+        "field": "best_time",
+        "present": true,
+        "points": 5
+      },
+      {
+        "field": "medications",
+        "present": true,
+        "points": 5
+      },
+      {
+        "field": "_phone_valid",
+        "in": [
+          true
+        ],
+        "points": 20
+      },
+      {
+        "field": "_time_on_page_s",
+        "min": 60,
+        "points": 5
+      },
+      {
+        "field": "_email_freemail_disposable",
+        "in": [
+          true
+        ],
+        "points": -40
+      }
     ],
-    "tiers": { "A": 70, "B": 45 },
-    "suggestedPrice": { "A": 65, "B": 40, "C": 15 }
+    "tiers": {
+      "A": 70,
+      "B": 45
+    },
+    "suggestedPrice": {
+      "A": 65,
+      "B": 40,
+      "C": 15
+    }
   },
   "compliance": {
     "regulator": "state department of insurance",
@@ -98,5 +498,42 @@
       "Health and underwriting statements must be general and hedged ('may', 'often', 'depends on the carrier')."
     ]
   },
-  "schemaType": "Organization"
+  "schemaType": "Organization",
+  "underwriting": {
+    "_comment": "Rough triage shown in the admin quote sheet. Carriers differ; always confirm with the carrier underwriting guide.",
+    "guaranteedIssue": [
+      "Use oxygen",
+      "Kidney disease or dialysis",
+      "Congestive heart failure",
+      "In a nursing home, hospice, or need help with daily activities",
+      "Alcohol or drug treatment"
+    ],
+    "graded": [
+      "Stroke or TIA (mini-stroke)",
+      "Cancer (other than basic skin cancer)",
+      "COPD, emphysema or chronic bronchitis",
+      "Diabetes (insulin)",
+      "Heart attack, stents or heart surgery",
+      "Liver disease or hepatitis"
+    ],
+    "watch": [
+      "Diabetes (pills or diet)",
+      "High blood pressure",
+      "High cholesterol",
+      "Sleep apnea",
+      "Anxiety or depression"
+    ]
+  },
+  "callChecklist": [
+    "Confirm name, date of birth, height/weight and tobacco answer from the form",
+    "Walk through each health condition: diagnosis date, treatment, last doctor visit",
+    "Confirm full medication list (dose not needed for most carriers)",
+    "Beneficiary: full name, relationship, date of birth (and percentage if more than one)",
+    "Existing life insurance: carrier, amount, and whether this replaces it (SC replacement form if so)",
+    "Primary doctor name and city",
+    "Driver license number (some carrier e-apps ask)",
+    "Social Security number: enter ONLY inside the carrier e-application, never in notes or texts",
+    "Bank routing/account for premium draft and preferred draft date: carrier e-app only",
+    "Explain next steps: phone interview or e-signature, and when coverage starts"
+  ]
 }

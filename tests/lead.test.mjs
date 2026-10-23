@@ -45,10 +45,30 @@ function fakeDB() {
 }
 
 const goodLead = {
-  site: 'demo', service: 'term-life-insurance', coverage_amount: '$250,000 - $500,000', age_range: '30-39',
-  tobacco: 'No', first_name: 'Jane', last_name: 'Doe', zip: '78701', phone: '(512) 555-2368',
-  email: 'jane@example.com', best_time: 'Evening', consent: 'yes', consent_text: 'I consent...', _time_on_page_s: 45
+  site: 'demo', service: 'term-life-insurance', coverage_amount: '$250,000 - $500,000', monthly_budget: '$30 - $50',
+  dob: '1985-04-02', sex: 'Female', height_ft: '5', height_in: '6', weight: '150', tobacco: 'Never',
+  conditions: ['None of these'], first_name: 'Jane', last_name: 'Doe', zip: '78701', phone: '(512) 555-2368',
+  email: 'jane@example.com', best_time: 'Weekday evenings', consent: 'yes', consent_text: 'I consent...', _time_on_page_s: 45
 };
+
+test('age from date of birth', async () => {
+  const { ageFromDob } = await import('../lib/scoring.mjs');
+  assert.equal(ageFromDob('1985-04-02', new Date('2026-04-01T12:00:00Z')), 40);
+  assert.equal(ageFromDob('1985-04-02', new Date('2026-04-02T12:00:00Z')), 41);
+  assert.equal(ageFromDob('not a date'), null);
+});
+
+test('minors are rejected; SSN/card numbers typed in free text are removed; arrays stored', async () => {
+  const env = { DB: fakeDB() };
+  const kid = await handleLead(req({ ...goodLead, dob: '2012-01-01' }), env, registry);
+  assert.equal(kid.status, 422);
+  await handleLead(req({ ...goodLead, medications: 'metformin, my ssn is 123-45-6789 card 4111 1111 1111 1111',
+    conditions: ['High blood pressure', 'Sleep apnea'] }), env, registry);
+  const a = JSON.parse(env.DB.rows[0].answers_json);
+  assert.doesNotMatch(a.medications, /6789|1111/);
+  assert.match(a.medications, /metformin/);
+  assert.deepEqual(a.conditions, ['High blood pressure', 'Sleep apnea']);
+});
 const req = (body, ip = '1.2.3.4') => new Request('https://x.test/api/lead', {
   method: 'POST', headers: { 'content-type': 'application/json', 'cf-connecting-ip': ip }, body: JSON.stringify(body)
 });

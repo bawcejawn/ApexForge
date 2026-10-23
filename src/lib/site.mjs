@@ -28,7 +28,13 @@ export function pageContent(page) {
 
 /** TCPA consent language, generated from the named buyer(s). Stored verbatim with each lead. */
 export function consentText() {
-  return `By checking this box and clicking "${vertical.cta}", I give my express written consent for ${vars.buyers} to contact me about ${vertical.label.toLowerCase()} at the phone number and email I provided, including by calls and text messages that may use automated technology or prerecorded/artificial voice. Consent is not a condition of any purchase. Message and data rates may apply. Reply STOP to opt out. I also agree to the Privacy Policy and Terms of Use.`;
+  // Every named company is listed explicitly ("A and B"), and the topics come
+  // from site.consentAbout when set (e.g. "real estate and mortgage protection
+  // life insurance") so cross-offers are only made when the consumer agreed.
+  const names = site.buyers.map(b => b.name);
+  const who = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0];
+  const about = site.consentAbout || vertical.label.toLowerCase();
+  return `By checking this box and clicking "${vertical.cta}", I give my express written consent for ${who} to contact me about ${about} at the phone number and email I provided, including by calls and text messages that may use automated technology or prerecorded/artificial voice. Consent is not a condition of any purchase. Message and data rates may apply. Reply STOP to opt out. I also agree to the Privacy Policy and Terms of Use.`;
 }
 
 export const abs = (p) => new URL(p, `https://${site.domain}`).href;

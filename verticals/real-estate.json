@@ -44,6 +44,7 @@
     }
   ],
   "form": {
+    "intro": "About 2 minutes. The more you share, the more useful the first conversation will be.",
     "steps": [
       {
         "title": "How can we help?",
@@ -78,48 +79,226 @@
               "$200,000 - $350,000",
               "$350,000 - $500,000",
               "$500,000 - $800,000",
-              "Over $800,000"
+              "Over $800,000",
+              "Not sure"
             ]
-          },
-          {
-            "name": "address",
-            "label": "Property address (sellers)",
-            "type": "text",
-            "required": false,
-            "autocomplete": "street-address"
           }
         ]
       },
       {
-        "title": "Who should the agent contact?",
+        "title": "Tell us about the home",
+        "help": "Answer what applies to you.",
+        "fields": [
+          {
+            "name": "address",
+            "label": "Property address",
+            "type": "text",
+            "required": false,
+            "autocomplete": "street-address",
+            "showIf": {
+              "field": "service",
+              "in": [
+                "sell-my-house",
+                "home-value"
+              ]
+            }
+          },
+          {
+            "name": "property_type",
+            "label": "Property type",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Single-family home",
+              "Condo",
+              "Townhome",
+              "Manufactured / mobile home",
+              "Land",
+              "Multi-family"
+            ]
+          },
+          {
+            "name": "beds",
+            "label": "Bedrooms",
+            "type": "select",
+            "required": false,
+            "options": [
+              "1",
+              "2",
+              "3",
+              "4",
+              "5+"
+            ],
+            "half": true
+          },
+          {
+            "name": "property_use",
+            "label": "It is (or will be) my",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Primary home",
+              "Second / vacation home",
+              "Rental or investment"
+            ],
+            "half": true
+          },
+          {
+            "name": "condition",
+            "label": "Condition",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Move-in ready",
+              "Needs minor updates",
+              "Needs major repairs"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "sell-my-house",
+                "home-value"
+              ]
+            }
+          },
+          {
+            "name": "sell_reason",
+            "label": "Reason for selling",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Relocating",
+              "Downsizing",
+              "Upsizing",
+              "Inherited property",
+              "Financial reasons",
+              "Selling an investment",
+              "Other"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "sell-my-house",
+                "home-value"
+              ]
+            }
+          },
+          {
+            "name": "listed",
+            "label": "Is it listed with an agent now?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "No",
+              "Yes, currently listed",
+              "It was listed but expired"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "sell-my-house",
+                "home-value"
+              ]
+            }
+          },
+          {
+            "name": "areas",
+            "label": "Areas you're considering",
+            "type": "text",
+            "required": false,
+            "placeholder": "e.g. Carolina Forest, Conway, Surfside",
+            "showIf": {
+              "field": "service",
+              "in": [
+                "buy-a-home"
+              ]
+            }
+          },
+          {
+            "name": "financing",
+            "label": "How will you pay?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Pre-approved for a mortgage",
+              "Need a mortgage, not pre-approved yet",
+              "Paying cash"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "buy-a-home"
+              ]
+            }
+          },
+          {
+            "name": "must_sell_first",
+            "label": "Do you need to sell a home first?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "No",
+              "Yes"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "buy-a-home"
+              ]
+            }
+          },
+          {
+            "name": "has_agent",
+            "label": "Are you working with an agent?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "No",
+              "Yes"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "buy-a-home"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "title": "Who should we contact?",
         "fields": [
           {
             "name": "first_name",
             "label": "First name",
             "type": "text",
             "required": true,
-            "autocomplete": "given-name"
+            "autocomplete": "given-name",
+            "half": true
           },
           {
             "name": "last_name",
             "label": "Last name",
             "type": "text",
             "required": true,
-            "autocomplete": "family-name"
+            "autocomplete": "family-name",
+            "half": true
+          },
+          {
+            "name": "phone",
+            "label": "Mobile phone",
+            "type": "tel",
+            "required": true,
+            "autocomplete": "tel",
+            "half": true
           },
           {
             "name": "zip",
             "label": "ZIP code",
             "type": "zip",
             "required": true,
-            "autocomplete": "postal-code"
-          },
-          {
-            "name": "phone",
-            "label": "Phone",
-            "type": "tel",
-            "required": true,
-            "autocomplete": "tel"
+            "autocomplete": "postal-code",
+            "half": true
           },
           {
             "name": "email",
@@ -127,6 +306,19 @@
             "type": "email",
             "required": true,
             "autocomplete": "email"
+          },
+          {
+            "name": "best_time",
+            "label": "Best time to reach you",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Weekday mornings",
+              "Weekday lunch",
+              "Weekday evenings",
+              "Weekends",
+              "Anytime"
+            ]
           }
         ]
       }
@@ -155,7 +347,7 @@
           "sell-my-house",
           "home-value"
         ],
-        "points": 15
+        "points": 10
       },
       {
         "field": "address",
@@ -163,13 +355,26 @@
         "points": 10
       },
       {
-        "field": "price_range",
+        "field": "financing",
         "in": [
-          "$350,000 - $500,000",
-          "$500,000 - $800,000",
-          "Over $800,000"
+          "Pre-approved for a mortgage",
+          "Paying cash"
         ],
         "points": 10
+      },
+      {
+        "field": "listed",
+        "in": [
+          "Yes, currently listed"
+        ],
+        "points": -20
+      },
+      {
+        "field": "has_agent",
+        "in": [
+          "Yes"
+        ],
+        "points": -20
       },
       {
         "field": "_phone_valid",
@@ -205,5 +410,14 @@
       "Use 'Equal Housing Opportunity' in the footer."
     ]
   },
-  "schemaType": "Organization"
+  "schemaType": "Organization",
+  "callChecklist": [
+    "Confirm property address (sellers) or target areas (buyers)",
+    "Timeline and what is driving it (job, family, retirement, financial)",
+    "Sellers: rough mortgage balance owed, repairs needed, occupied or vacant",
+    "Buyers: pre-approval status, price ceiling, must-haves",
+    "Are they under contract with another agent? If yes, do not introduce your partner",
+    "Best way and time for your partner agent to reach them",
+    "Get a clear OK to introduce your partner by name"
+  ]
 }

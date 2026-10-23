@@ -1,16 +1,47 @@
 ---
+// Thank-you page. If site.bookingUrl is set (a free Cal.com or Google Calendar
+// appointment link), the lead is asked to pick a call time right away, so you
+// call at a time that fits your schedule and they expect the call.
 import Base from '../layouts/Base.astro';
 import { site, vertical, vars } from '../lib/site.mjs';
+const booking = site.bookingUrl && /^https:\/\//.test(site.bookingUrl) ? site.bookingUrl : null;
+const isLife = vertical.id === 'life-insurance';
 ---
 <Base title={`Thank you | ${site.brand}`} description="Your request was received." path="/thank-you/" noindex>
   <div class="wrap prose" style="padding:48px 16px">
     <h1>Thanks, your request is in.</h1>
-    <p>A licensed professional from <strong>{vars.buyers}</strong> will reach out shortly, usually within one business day. Keep your phone handy.</p>
+    {booking ? (
+      <>
+        <p><strong>One last step:</strong> pick a time that works for you, and <strong>{vars.buyers}</strong> will call then{isLife ? ' with your quotes ready' : ''}. It takes about 15 minutes.</p>
+        <p><a class="btn" id="book" href={booking} target="_blank" rel="noopener">Pick my call time</a></p>
+        <p class="muted">Prefer not to schedule? That's fine. We'll reach out within one business day.</p>
+      </>
+    ) : (
+      <p>A licensed professional from <strong>{vars.buyers}</strong> will reach out shortly, usually within one business day{isLife ? ', with your quotes ready' : ''}. Keep your phone handy.</p>
+    )}
     <h2>While you wait</h2>
     <ul>
-      <li>Jot down your goals and budget so the conversation is quick.</li>
-      <li>Have questions ready. There is no obligation to buy or apply.</li>
+      {isLife ? <>
+        <li>Have a list of your medications and your doctor's name handy. It speeds things up if you decide to apply.</li>
+        <li>Think about who you'd want as your beneficiary.</li>
+      </> : <>
+        <li>Jot down your goals, budget and timeline so the conversation is quick.</li>
+      </>}
+      <li>There is never any obligation to buy or apply.</li>
     </ul>
     <p><a class="btn secondary" href={`/${vertical.services[0].slug}/`}>Keep reading about {vertical.services[0].name.toLowerCase()}</a></p>
   </div>
+  <script>
+    // Prefill name/email on Cal.com-style links (?name=&email=). Data stays in this tab.
+    const a = document.getElementById('book') as HTMLAnchorElement | null;
+    try {
+      const lead = JSON.parse(sessionStorage.getItem('af_lead') || 'null');
+      if (a && lead) {
+        const u = new URL(a.href);
+        if (lead.name) u.searchParams.set('name', lead.name);
+        if (lead.email) u.searchParams.set('email', lead.email);
+        a.href = u.toString();
+      }
+    } catch {}
+  </script>
 </Base>

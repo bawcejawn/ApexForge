@@ -6,45 +6,372 @@
   "cta": "See my options",
   "audience": "homebuyers, homeowners refinancing, and owners tapping equity",
   "services": [
-    { "slug": "home-purchase-loans", "name": "Home Purchase Loans", "keyword": "mortgage lenders", "angle": "first-time and move-up buyers comparing conventional, FHA, VA and USDA loans",
-      "faqs": [{ "q": "How much do I need for a down payment?", "a": "It varies by loan type. Some government-backed programs allow little or no down payment for eligible borrowers, while conventional loans often start around 3–5%. A loan officer can confirm what you qualify for." }] },
-    { "slug": "refinance", "name": "Mortgage Refinance", "keyword": "refinance mortgage", "angle": "lowering a payment, shortening a term, or switching from an adjustable rate",
-      "faqs": [{ "q": "When does refinancing make sense?", "a": "Usually when the savings outweigh closing costs within the time you plan to stay in the home. Your rate, remaining balance and credit all factor in." }] },
-    { "slug": "heloc", "name": "Home Equity Line of Credit", "keyword": "heloc", "angle": "accessing home equity for renovations or debt consolidation without refinancing the first mortgage",
-      "faqs": [{ "q": "How much can I borrow with a HELOC?", "a": "Lenders commonly allow combined borrowing up to a percentage of your home's value minus what you owe. Limits depend on the lender, your credit and income." }] },
-    { "slug": "va-loans", "name": "VA Home Loans", "keyword": "va loan", "angle": "eligible veterans and service members using VA-backed financing",
-      "faqs": [{ "q": "Who is eligible for a VA loan?", "a": "Eligibility is based on military service history and is confirmed with a Certificate of Eligibility. A VA-approved lender can help you request one." }] }
+    {
+      "slug": "home-purchase-loans",
+      "name": "Home Purchase Loans",
+      "keyword": "mortgage lenders",
+      "angle": "first-time and move-up buyers comparing conventional, FHA, VA and USDA loans",
+      "faqs": [
+        {
+          "q": "How much do I need for a down payment?",
+          "a": "It varies by loan type. Some government-backed programs allow little or no down payment for eligible borrowers, while conventional loans often start around 3–5%. A loan officer can confirm what you qualify for."
+        }
+      ]
+    },
+    {
+      "slug": "refinance",
+      "name": "Mortgage Refinance",
+      "keyword": "refinance mortgage",
+      "angle": "lowering a payment, shortening a term, or switching from an adjustable rate",
+      "faqs": [
+        {
+          "q": "When does refinancing make sense?",
+          "a": "Usually when the savings outweigh closing costs within the time you plan to stay in the home. Your rate, remaining balance and credit all factor in."
+        }
+      ]
+    },
+    {
+      "slug": "heloc",
+      "name": "Home Equity Line of Credit",
+      "keyword": "heloc",
+      "angle": "accessing home equity for renovations or debt consolidation without refinancing the first mortgage",
+      "faqs": [
+        {
+          "q": "How much can I borrow with a HELOC?",
+          "a": "Lenders commonly allow combined borrowing up to a percentage of your home's value minus what you owe. Limits depend on the lender, your credit and income."
+        }
+      ]
+    },
+    {
+      "slug": "va-loans",
+      "name": "VA Home Loans",
+      "keyword": "va loan",
+      "angle": "eligible veterans and service members using VA-backed financing",
+      "faqs": [
+        {
+          "q": "Who is eligible for a VA loan?",
+          "a": "Eligibility is based on military service history and is confirmed with a Certificate of Eligibility. A VA-approved lender can help you request one."
+        }
+      ]
+    }
   ],
   "form": {
+    "intro": "About 2 minutes. A loan officer reviews options with you before anything is submitted.",
     "steps": [
-      { "title": "Tell us about your goal", "fields": [
-        { "name": "service", "label": "Loan type", "type": "select", "required": true, "fromServices": true },
-        { "name": "property_value", "label": "Estimated home value / price", "type": "select", "required": true, "options": ["Under $150,000", "$150,000 - $300,000", "$300,000 - $500,000", "$500,000 - $800,000", "Over $800,000"] },
-        { "name": "credit", "label": "Estimated credit", "type": "select", "required": true, "options": ["Excellent (740+)", "Good (680-739)", "Fair (620-679)", "Below 620", "Not sure"] },
-        { "name": "timeline", "label": "Timeline", "type": "select", "required": true, "options": ["Ready now", "1-3 months", "3-6 months", "Just researching"] }
-      ]},
-      { "title": "Where should a loan officer reach you?", "fields": [
-        { "name": "first_name", "label": "First name", "type": "text", "required": true, "autocomplete": "given-name" },
-        { "name": "last_name", "label": "Last name", "type": "text", "required": true, "autocomplete": "family-name" },
-        { "name": "zip", "label": "ZIP code", "type": "zip", "required": true, "autocomplete": "postal-code" },
-        { "name": "phone", "label": "Phone", "type": "tel", "required": true, "autocomplete": "tel" },
-        { "name": "email", "label": "Email", "type": "email", "required": true, "autocomplete": "email" }
-      ]}
+      {
+        "title": "Tell us about your goal",
+        "fields": [
+          {
+            "name": "service",
+            "label": "Loan type",
+            "type": "select",
+            "required": true,
+            "fromServices": true
+          },
+          {
+            "name": "property_value",
+            "label": "Home price or value",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Under $200,000",
+              "$200,000 - $300,000",
+              "$300,000 - $450,000",
+              "$450,000 - $650,000",
+              "Over $650,000"
+            ]
+          },
+          {
+            "name": "down_payment",
+            "label": "Down payment",
+            "type": "select",
+            "required": false,
+            "options": [
+              "0%",
+              "3-5%",
+              "5-10%",
+              "10-20%",
+              "20% or more",
+              "Not sure"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "home-purchase-loans",
+                "va-loans"
+              ]
+            }
+          },
+          {
+            "name": "loan_balance",
+            "label": "Current loan balance",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Paid off",
+              "Under $150,000",
+              "$150,000 - $300,000",
+              "$300,000 - $450,000",
+              "Over $450,000"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "refinance",
+                "heloc"
+              ]
+            }
+          },
+          {
+            "name": "property_use",
+            "label": "This is my",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Primary home",
+              "Second / vacation home",
+              "Investment property"
+            ]
+          },
+          {
+            "name": "timeline",
+            "label": "Timeline",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Ready now",
+              "1-3 months",
+              "3-6 months",
+              "Just researching"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "A little about you",
+        "help": "Ranges are fine. This helps match you with the right loan program.",
+        "fields": [
+          {
+            "name": "credit",
+            "label": "Estimated credit",
+            "type": "select",
+            "required": true,
+            "options": [
+              "Excellent (740+)",
+              "Good (680-739)",
+              "Fair (620-679)",
+              "Below 620",
+              "Not sure"
+            ]
+          },
+          {
+            "name": "employment",
+            "label": "Income type",
+            "type": "select",
+            "required": true,
+            "options": [
+              "W-2 employee",
+              "Self-employed",
+              "Retired",
+              "Military",
+              "Other"
+            ]
+          },
+          {
+            "name": "income",
+            "label": "Household income (yearly)",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Under $50,000",
+              "$50,000 - $80,000",
+              "$80,000 - $120,000",
+              "$120,000 - $200,000",
+              "Over $200,000"
+            ]
+          },
+          {
+            "name": "first_time",
+            "label": "First-time buyer?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Yes",
+              "No"
+            ],
+            "half": true,
+            "showIf": {
+              "field": "service",
+              "in": [
+                "home-purchase-loans",
+                "va-loans"
+              ]
+            }
+          },
+          {
+            "name": "military",
+            "label": "Military service?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "No",
+              "Veteran",
+              "Active duty",
+              "Surviving spouse"
+            ],
+            "half": true
+          },
+          {
+            "name": "found_home",
+            "label": "Found a home yet?",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Yes, under contract",
+              "Yes, making offers",
+              "Still looking"
+            ],
+            "showIf": {
+              "field": "service",
+              "in": [
+                "home-purchase-loans",
+                "va-loans"
+              ]
+            }
+          }
+        ]
+      },
+      {
+        "title": "Where should a loan officer reach you?",
+        "fields": [
+          {
+            "name": "first_name",
+            "label": "First name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "given-name",
+            "half": true
+          },
+          {
+            "name": "last_name",
+            "label": "Last name",
+            "type": "text",
+            "required": true,
+            "autocomplete": "family-name",
+            "half": true
+          },
+          {
+            "name": "phone",
+            "label": "Mobile phone",
+            "type": "tel",
+            "required": true,
+            "autocomplete": "tel",
+            "half": true
+          },
+          {
+            "name": "zip",
+            "label": "ZIP code",
+            "type": "zip",
+            "required": true,
+            "autocomplete": "postal-code",
+            "half": true
+          },
+          {
+            "name": "email",
+            "label": "Email",
+            "type": "email",
+            "required": true,
+            "autocomplete": "email"
+          },
+          {
+            "name": "best_time",
+            "label": "Best time to reach you",
+            "type": "select",
+            "required": false,
+            "options": [
+              "Weekday mornings",
+              "Weekday lunch",
+              "Weekday evenings",
+              "Weekends",
+              "Anytime"
+            ]
+          }
+        ]
+      }
     ]
   },
   "scoring": {
     "rules": [
-      { "field": "timeline", "in": ["Ready now"], "points": 30 },
-      { "field": "timeline", "in": ["1-3 months"], "points": 20 },
-      { "field": "credit", "in": ["Excellent (740+)", "Good (680-739)"], "points": 20 },
-      { "field": "credit", "in": ["Fair (620-679)"], "points": 10 },
-      { "field": "property_value", "in": ["$300,000 - $500,000", "$500,000 - $800,000", "Over $800,000"], "points": 15 },
-      { "field": "_phone_valid", "in": [true], "points": 20 },
-      { "field": "_time_on_page_s", "min": 20, "points": 5 },
-      { "field": "_email_freemail_disposable", "in": [true], "points": -40 }
+      {
+        "field": "timeline",
+        "in": [
+          "Ready now"
+        ],
+        "points": 25
+      },
+      {
+        "field": "timeline",
+        "in": [
+          "1-3 months"
+        ],
+        "points": 15
+      },
+      {
+        "field": "found_home",
+        "in": [
+          "Yes, under contract",
+          "Yes, making offers"
+        ],
+        "points": 15
+      },
+      {
+        "field": "credit",
+        "in": [
+          "Excellent (740+)",
+          "Good (680-739)"
+        ],
+        "points": 15
+      },
+      {
+        "field": "credit",
+        "in": [
+          "Fair (620-679)"
+        ],
+        "points": 8
+      },
+      {
+        "field": "property_value",
+        "in": [
+          "$300,000 - $450,000",
+          "$450,000 - $650,000",
+          "Over $650,000"
+        ],
+        "points": 10
+      },
+      {
+        "field": "_phone_valid",
+        "in": [
+          true
+        ],
+        "points": 20
+      },
+      {
+        "field": "_email_freemail_disposable",
+        "in": [
+          true
+        ],
+        "points": -40
+      }
     ],
-    "tiers": { "A": 70, "B": 45 },
-    "suggestedPrice": { "A": 95, "B": 50, "C": 15 }
+    "tiers": {
+      "A": 70,
+      "B": 45
+    },
+    "suggestedPrice": {
+      "A": 95,
+      "B": 50,
+      "C": 15
+    }
   },
   "compliance": {
     "regulator": "state banking/mortgage regulator and NMLS",
@@ -56,5 +383,14 @@
       "Do not imply government affiliation for FHA/VA/USDA content."
     ]
   },
-  "schemaType": "Organization"
+  "schemaType": "Organization",
+  "callChecklist": [
+    "Confirm loan goal, price/value and timeline",
+    "Purchase: found a home? Under contract? Closing date?",
+    "Refinance/HELOC: rough current rate and balance, and why now",
+    "Income type and rough credit band (no credit pull on your call)",
+    "Military service (VA eligibility)",
+    "Do NOT quote rates or payments: that is the loan officer's job",
+    "Get a clear OK to introduce your partner loan officer by name"
+  ]
 }
