@@ -1,12 +1,12 @@
 {
-  "_comment": "Mortgage site. You call each lead first to check quality, then introduce them to your lender partner. Both of you must be named in buyers. Replace every TODO in the admin.",
+  "_comment": "Floating-partner mode: only your S-Corp is named in consent. You call every lead, get their OK on the phone to introduce a partner, then hand off. Add a partner to buyers later only if you want them to contact leads directly.",
   "slug": "horry-mortgage",
   "brand": "Grand Strand Mortgage Match",
   "domain": "TODO-yourdomain.com",
   "vertical": "mortgage",
   "state": "SC",
   "stateName": "South Carolina",
-  "consentAbout": "home loans and refinancing, including mortgage protection life insurance",
+  "consentAbout": "home loans and refinancing, including being introduced, with my permission, to a licensed loan officer, and mortgage protection life insurance",
   "cities": [
     {
       "name": "Myrtle Beach",
@@ -42,24 +42,20 @@
   "maxCityPages": 6,
   "bookingUrl": "",
   "operator": {
-    "legalName": "TODO Your LLC legal name",
+    "legalName": "TODO Your S-Corp legal name",
     "address": "TODO Street, City, SC ZIP",
     "email": "TODO@yourdomain.com"
   },
   "buyers": [
     {
-      "name": "TODO Your LLC name",
+      "name": "TODO Your S-Corp legal name",
       "license": ""
-    },
-    {
-      "name": "TODO Partner Loan Officer Name, Company Name",
-      "license": "NMLS #TODO"
     }
   ],
   "author": {
-    "name": "TODO Partner Loan Officer Name",
-    "credentials": "Licensed mortgage loan originator (NMLS #TODO)",
-    "bio": "TODO A sentence about your partner's lending experience in Horry County."
+    "name": "Carl Padavano",
+    "credentials": "Horry County resident and licensed South Carolina insurance agent",
+    "bio": "TODO A sentence about your local knowledge and how you connect people with trusted local professionals."
   },
   "theme": {
     "primary": "#1f4e3d",

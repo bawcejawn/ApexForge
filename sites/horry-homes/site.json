@@ -1,12 +1,12 @@
 {
-  "_comment": "Real estate site. You call each lead first to check quality, then introduce them to your realtor partner. Both of you must be named in buyers. Replace every TODO in the admin.",
+  "_comment": "Floating-partner mode: only your S-Corp is named in consent. You call every lead, get their OK on the phone to introduce a partner, then hand off. Add a partner to buyers later only if you want them to contact leads directly.",
   "slug": "horry-homes",
   "brand": "Grand Strand Home Value",
   "domain": "TODO-yourdomain.com",
   "vertical": "real-estate",
   "state": "SC",
   "stateName": "South Carolina",
-  "consentAbout": "buying or selling a home, including related home financing and mortgage protection life insurance",
+  "consentAbout": "buying or selling a home, including being introduced, with my permission, to a licensed local real estate agent, and mortgage protection life insurance",
   "cities": [
     {
       "name": "Myrtle Beach",
@@ -57,24 +57,20 @@
   "maxCityPages": 9,
   "bookingUrl": "",
   "operator": {
-    "legalName": "TODO Your LLC legal name",
+    "legalName": "TODO Your S-Corp legal name",
     "address": "TODO Street, City, SC ZIP",
     "email": "TODO@yourdomain.com"
   },
   "buyers": [
     {
-      "name": "TODO Your LLC name",
+      "name": "TODO Your S-Corp legal name",
       "license": ""
-    },
-    {
-      "name": "TODO Partner Realtor Name, Brokerage Name",
-      "license": "SC Real Estate License #TODO"
     }
   ],
   "author": {
-    "name": "TODO Partner Realtor Name",
-    "credentials": "Licensed South Carolina REALTOR",
-    "bio": "TODO A sentence about your partner's experience in Horry County."
+    "name": "Carl Padavano",
+    "credentials": "Horry County resident and licensed South Carolina insurance agent",
+    "bio": "TODO A sentence about your local knowledge and how you connect people with trusted local professionals."
   },
   "theme": {
     "primary": "#12355b",

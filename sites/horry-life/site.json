@@ -51,20 +51,20 @@
   "maxCityPages": 8,
   "bookingUrl": "",
   "operator": {
-    "legalName": "TODO Your Agency or LLC legal name",
+    "legalName": "TODO Your S-Corp legal name",
     "address": "TODO Street, City, SC ZIP",
     "email": "TODO@yourdomain.com"
   },
   "buyers": [
     {
-      "name": "TODO Your Name or Agency Name",
-      "license": "SC Insurance Producer License #TODO"
+      "name": "Carl Padavano",
+      "license": "SC Insurance Producer #20735813"
     }
   ],
   "author": {
-    "name": "TODO Your Name",
+    "name": "Carl Padavano",
     "credentials": "Licensed South Carolina life insurance agent",
-    "bio": "TODO One or two sentences: how long you've been licensed, that you live and work in Horry County, and what you help families with."
+    "bio": "TODO One or two sentences: how long you have been licensed, that you live and work in Horry County, and what you help families with."
   },
   "theme": {
     "primary": "#0f3d3e",
