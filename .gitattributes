@@ -1,0 +1,8 @@
+# Keep Unix line endings in the repo on every OS (Windows included), so
+# markdown frontmatter, JSON and scripts behave the same everywhere.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+# Windows batch files need CRLF line endings to run reliably
+*.cmd text eol=crlf
