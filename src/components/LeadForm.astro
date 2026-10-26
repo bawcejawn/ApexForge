@@ -18,9 +18,11 @@
 // -----------------------------------------------------------------------------
 import { site, vertical, consentText } from '../lib/site.mjs';
 
-interface Props { service?: string; city?: string; }
-const { service, city } = Astro.props;
-const consent = consentText();
+interface Props { service?: string; city?: string; citySlug?: string; }
+const { service, city, citySlug } = Astro.props;
+const consent = consentText(citySlug);
+// Free bot check (Cloudflare Turnstile). Add the public site key in Settings.
+const turnstileKey = site.turnstileSiteKey || '';
 const steps = vertical.form.steps;
 const opts = (f) => f.fromServices ? vertical.services.map(s => ({ v: s.slug, l: s.name })) : (f.options || []).map(o => ({ v: o, l: o }));
 const showIf = (f) => (f.showIf ? JSON.stringify(f.showIf) : undefined);
@@ -83,6 +85,9 @@ const showIf = (f) => (f.showIf ? JSON.stringify(f.showIf) : undefined);
         ))}
       </div>
 
+      {i === steps.length - 1 && turnstileKey && (
+        <div class="cf-turnstile" data-sitekey={turnstileKey} data-size="flexible" data-appearance="interaction-only"></div>
+      )}
       {i === steps.length - 1 && (
         <label class="consent">
           <input type="checkbox" name="consent" value="yes" required />
@@ -104,10 +109,12 @@ const showIf = (f) => (f.showIf ? JSON.stringify(f.showIf) : undefined);
     <label>Company website <input type="text" name="company_website" tabindex="-1" autocomplete="off" /></label>
   </div>
   <input type="hidden" name="city" value={city || ''} />
+  <input type="hidden" name="city_slug" value={citySlug || ''} />
   <input type="hidden" name="consent_text" value={consent} />
   <p class="form-msg" role="alert" hidden></p>
   <p class="muted small">Free. No obligation. We never ask for your Social Security number or bank details on this form. Your information is shared only with the company named above.</p>
 </form>
+{turnstileKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
 
 <style>
   .lead { position: relative; box-shadow: 0 10px 30px rgba(15, 61, 62, .08); }
@@ -233,10 +240,11 @@ const showIf = (f) => (f.showIf ? JSON.stringify(f.showIf) : undefined);
       const res = await fetch('/api/lead', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(data) });
       const out = await res.json().catch(() => ({}));
       if (!res.ok || !out.ok) throw new Error(out.error || 'Something went wrong.');
-      // Prefill the booking link on the thank-you page (stays in this browser tab only).
-      try { sessionStorage.setItem('af_lead', JSON.stringify({ name: `${data.first_name || ''} ${data.last_name || ''}`.trim(), email: data.email || '' })); } catch {}
+      // Thank-you page shows who will contact them and their booking link (this tab only).
+      try { sessionStorage.setItem('af_lead', JSON.stringify({ name: `${data.first_name || ''} ${data.last_name || ''}`.trim(), email: data.email || '', contact: out.contact || null })); } catch {}
       location.href = '/thank-you/';
     } catch (err) {
+      (window as any).turnstile?.reset?.(); // tokens are single-use
       msg.hidden = false;
       msg.textContent = (err as Error).message + ' Please try again.';
       btn.disabled = false; btn.textContent = 'Try again';

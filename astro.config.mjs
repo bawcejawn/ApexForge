@@ -13,7 +13,7 @@ export default defineConfig({
   build: { format: 'directory' },
   integrations: [
     // Keep utility pages out of the sitemap so crawl budget goes to money pages.
-    sitemap({ filter: (url) => !/\/(thank-you|404)\//.test(url) })
+    sitemap({ filter: (url) => !/\/(thank-you|404|partner)\//.test(url) })
   ],
   devToolbar: { enabled: false }
 });

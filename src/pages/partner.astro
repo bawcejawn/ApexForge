@@ -1,0 +1,190 @@
+---
+// Partner portal: /partner/#<access code>
+// Each partner gets a private link from the admin (Partners → Copy portal link).
+// They see their leads (last 90 days), balance, weekly count, and can request
+// a replacement for a bad lead within 72 hours. Not indexed by search engines.
+// The access code is read from the URL fragment (#...), which browsers never
+// send to servers or put in referrers, then kept only in this tab.
+import Base from '../layouts/Base.astro';
+import { site } from '../lib/site.mjs';
+---
+<Base title={`Partner portal | ${site.brand}`} description="Partner lead portal." path="/partner/" noindex>
+  <div class="wrap portal">
+    <div id="gate" class="card gate" hidden>
+      <h1>Partner portal</h1>
+      <p class="muted">Open the private link you were sent, or paste your access code.</p>
+      <form id="code-form">
+        <label class="field"><span>Access code</span><input id="code" type="password" autocomplete="off" required minlength="16" /></label>
+        <button class="btn" type="submit">Open my leads</button>
+      </form>
+      <p id="gate-msg" class="err" role="alert" hidden></p>
+    </div>
+
+    <div id="app" hidden>
+      <div class="top">
+        <div>
+          <p class="eyebrow">Partner portal</p>
+          <h1 id="p-name"></h1>
+        </div>
+        <button class="btn secondary" id="refresh" type="button">Refresh</button>
+      </div>
+      <div class="stats">
+        <div class="stat"><b id="s-balance"></b><span>Prepaid balance</span></div>
+        <div class="stat"><b id="s-week"></b><span>Leads, last 7 days</span></div>
+        <div class="stat"><b id="s-price"></b><span>Price per lead</span></div>
+        <div class="stat"><b id="s-total"></b><span>Leads delivered (all time)</span></div>
+      </div>
+      <p id="low" class="notice" hidden></p>
+      <p class="muted small">New leads arrive by email the moment they're submitted. Call fast: contact rates drop sharply after the first 5 minutes. Bad number, duplicate, or already working with another agent? Request a replacement within 72 hours.</p>
+      <div id="leads"></div>
+    </div>
+  </div>
+
+  <style>
+    .portal { padding-block: 28px 48px; }
+    .gate { max-width: 440px; margin: 32px auto; }
+    .field { display: block; margin: 12px 0; }
+    .field span { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 4px; }
+    .field input, .field select { width: 100%; font: inherit; padding: 11px; border: 1px solid var(--line); border-radius: 10px; }
+    .err { color: #b3261e; font-weight: 600; }
+    .top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+    .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 700; color: var(--primary); margin: 0; }
+    .top h1 { margin: 2px 0 0; font-size: 1.6rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin: 18px 0; }
+    .stat { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: grid; gap: 2px; }
+    .stat b { font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+    .stat span { color: var(--muted); font-size: .85rem; }
+    .notice { background: #fff3d9; border-radius: 10px; padding: 12px 14px; }
+    .small { font-size: .85rem; }
+    .lead { background: #fff; border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-top: 12px; }
+    .lead-head { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+    .lead-head h2 { font-size: 1.15rem; margin: 0; }
+    .pill { font-size: .75rem; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: #eef2f1; color: var(--muted); }
+    .pill.A { background: #e4f4ea; color: #1d7a4b; } .pill.B { background: #e7f0f8; color: #1f5f8f; }
+    .pill.ret { background: #fff3d9; color: #9a6400; }
+    .contact { display: flex; gap: 8px 18px; flex-wrap: wrap; margin: 8px 0; font-weight: 600; }
+    .contact span { user-select: all; }
+    dl { display: grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 4px 12px; margin: 10px 0 0; font-size: .92rem; }
+    dt { color: var(--muted); } dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+    details { margin-top: 10px; font-size: .85rem; color: var(--muted); }
+    .ret-form { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+    .ret-form select { width: auto; flex: 1; min-width: 200px; font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); }
+    .ret-form .btn { padding: 8px 14px; }
+    @media (max-width: 520px) { dl { grid-template-columns: 1fr; } dt { margin-top: 6px; } }
+  </style>
+
+  <script>
+    // Every value from the server is inserted with textContent, never as HTML.
+    const $ = (id: string) => document.getElementById(id)!;
+    const el = (tag: string, text?: string | null, cls?: string) => { const e = document.createElement(tag); if (text != null) e.textContent = text; if (cls) e.className = cls; return e; };
+    const money = (n: number) => '$' + Number(n || 0).toLocaleString(undefined, { maximumFractionDigits: 2 });
+    const when = (iso: string) => new Date(iso).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    let code = '';
+
+    function takeCode() {
+      const h = location.hash.replace(/^#/, '');
+      if (h.length >= 16) {
+        code = decodeURIComponent(h);
+        history.replaceState(null, '', location.pathname); // remove code from the address bar
+        try { sessionStorage.setItem('af_partner', code); } catch {}
+      } else {
+        try { code = sessionStorage.getItem('af_partner') || ''; } catch {}
+      }
+    }
+
+    async function api(method = 'GET', body?: unknown) {
+      const res = await fetch('/api/partner', {
+        method, headers: { authorization: `Bearer ${code}`, ...(body ? { 'content-type': 'application/json' } : {}) },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const out = await res.json().catch(() => ({}));
+      if (!res.ok) throw Object.assign(new Error(out.error || 'Something went wrong.'), { status: res.status });
+      return out;
+    }
+
+    async function load() {
+      try {
+        const d = await api();
+        $('gate').hidden = true; $('app').hidden = false;
+        const p = d.partner;
+        $('p-name').textContent = p.company ? `${p.name} · ${p.company}` : p.name;
+        $('s-balance').textContent = p.prepaid ? money(p.balance) : 'Invoiced';
+        $('s-week').textContent = p.weeklyCap ? `${p.weekCount} / ${p.weeklyCap}` : String(p.weekCount);
+        const tiers = p.priceByTier || {};
+        const tierText = ['A', 'B', 'C'].filter(t => Number(tiers[t]) > 0).map(t => `${t} ${money(tiers[t])}`).join(' · ');
+        $('s-price').textContent = tierText || money(p.pricePerLead);
+        $('s-total').textContent = String(p.totalDelivered);
+        const low = $('low');
+        if (!p.active) { low.hidden = false; low.textContent = 'Lead delivery is paused for your account.'; }
+        else if (p.prepaid && p.balance < (p.pricePerLead || 1)) {
+          low.hidden = false;
+          low.replaceChildren('Your balance is too low to receive new leads. ');
+          if (p.payLink && /^https:\/\//.test(p.payLink)) {
+            const a = el('a', 'Buy more leads') as HTMLAnchorElement; a.href = p.payLink; a.target = '_blank'; a.rel = 'noopener'; a.className = 'btn';
+            low.append(a);
+          } else low.append('Contact us to add more.');
+        } else low.hidden = true;
+        render(d);
+      } catch (e: any) {
+        $('app').hidden = true; $('gate').hidden = false;
+        if (code) { const m = $('gate-msg'); m.hidden = false; m.textContent = e.message; }
+        if (e.status === 401) { code = ''; try { sessionStorage.removeItem('af_partner'); } catch {} }
+      }
+    }
+
+    function render(d: any) {
+      const box = $('leads');
+      if (!d.leads.length) { box.replaceChildren(el('p', 'No leads yet. They\'ll show up here and in your email as soon as they arrive.', 'muted')); return; }
+      box.replaceChildren(...d.leads.map((l: any) => {
+        const v = d.verticals[l.vertical] || { labels: {}, services: {} };
+        const card = el('article', null, 'lead');
+        const head = el('div', null, 'lead-head');
+        head.append(el('h2', `${l.first_name} ${l.last_name}`), el('span', `Tier ${l.tier}`, `pill ${l.tier}`),
+          el('span', v.services[l.service] || l.service || '', 'pill'), el('span', `Received ${when(l.delivered_at)}`, 'muted small'));
+        if (l.status === 'return_requested') head.append(el('span', 'Replacement requested', 'pill ret'));
+        if (l.status === 'returned') head.append(el('span', 'Replaced / credited', 'pill ret'));
+        const contact = el('div', null, 'contact');
+        contact.append(el('span', l.phone), el('span', l.email), el('span', [l.city, l.zip].filter(Boolean).join(' ')));
+        const dl = el('dl');
+        let answers: Record<string, unknown> = {};
+        try { answers = JSON.parse(l.answers_json || '{}'); } catch {}
+        for (const [k, val] of Object.entries(answers)) {
+          if (val === '' || val == null || (Array.isArray(val) && !val.length)) continue;
+          dl.append(el('dt', String(v.labels[k] || k.replace(/_/g, ' ')).replace(/ /g, '').trim() || k), el('dd', Array.isArray(val) ? val.join(', ') : String(val)));
+        }
+        const consent = el('details');
+        consent.append(el('summary', 'Consent record'), el('p', `Agreed ${when(l.consent_at)}: ${l.consent_text}`));
+        card.append(head, contact, dl, consent);
+        const fresh = Date.now() - Date.parse(l.delivered_at) < 3 * 864e5;
+        if (l.status === 'sold' && fresh) {
+          const f = el('form', null, 'ret-form') as HTMLFormElement;
+          const sel = el('select') as HTMLSelectElement;
+          for (const r of ['', 'Wrong or disconnected number', 'Duplicate of a lead I already had', 'Already working with another agent', 'Says they never requested this', 'Other']) {
+            const o = el('option', r || 'Request a replacement…') as HTMLOptionElement; o.value = r; sel.append(o);
+          }
+          const btn = el('button', 'Request replacement', 'btn secondary') as HTMLButtonElement; btn.type = 'submit';
+          f.append(sel, btn);
+          f.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!sel.value) return sel.focus();
+            btn.disabled = true; btn.textContent = 'Sending…';
+            try { await api('POST', { action: 'return', id: l.id, reason: sel.value }); await load(); }
+            catch (err: any) { btn.disabled = false; btn.textContent = 'Request replacement'; f.append(el('p', err.message, 'err')); }
+          });
+          card.append(f);
+        }
+        return card;
+      }));
+    }
+
+    $('code-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      code = ($('code') as HTMLInputElement).value.trim();
+      try { sessionStorage.setItem('af_partner', code); } catch {}
+      load();
+    });
+    $('refresh').addEventListener('click', load);
+    takeCode();
+    if (code) load(); else $('gate').hidden = false;
+  </script>
+</Base>
