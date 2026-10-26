@@ -46,9 +46,10 @@ if (a.set) {
     const since = db.lastPull[api] || '1970-01-01';
     const r = await fetch(`${api}/api/leads?since=${encodeURIComponent(since)}`, { headers: auth });
     if (!r.ok) { console.error(`✗ ${api}: HTTP ${r.status}`); continue; }
-    const { leads = [] } = await r.json();
-    for (const l of leads) db.leads[l.id] = { ...l, _api: api };
-    if (leads.length) db.lastPull[api] = leads[0].created_at;
+    const { leads = [], serverTime } = await r.json();
+    for (const l of leads) db.leads[l.id] = { ...db.leads[l.id], ...l, _api: api, _unsynced: false };
+    // Use the server's clock so status changes (e.g. partner return requests) are picked up next time too.
+    db.lastPull[api] = serverTime || leads[0]?.created_at || since;
     console.log(`✓ ${api}: ${leads.length} new`);
   }
 }

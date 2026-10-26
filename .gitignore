@@ -9,3 +9,5 @@ data/
 lib/registry.generated.mjs
 # Deleted sites from the admin (recoverable)
 .trash/
+# Partner directory (emails, phones, portal codes) — never commit
+private/
