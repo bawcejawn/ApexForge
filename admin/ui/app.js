@@ -10,7 +10,11 @@ import { h, api, toast, act, fmtDate, money, pill, overlay, runJob, watchJob } f
 import { createEditor } from './editor.js';
 import { marked } from '/vendor/marked.js';
 
-const view = document.getElementById('view');
+// Each screen renders into its own fresh container, which is only swapped in
+// if no newer navigation started meanwhile (a slow screen can't overwrite a newer one).
+const viewRoot = document.getElementById('view');
+let currentView = viewRoot;  // set by render(); each screen captures it on entry
+let renderSeq = 0;
 const crumbs = document.getElementById('crumbs');
 let dirty = false;                 // unsaved edits on the current screen
 let cache = { verticals: [] };
@@ -25,6 +29,8 @@ const routes = [
   [/^#\/verticals$/, verticalsList, 'verticals'],
   [/^#\/vertical\/([\w-]+)$/, verticalEditor, 'verticals'],
   [/^#\/jobs$/, jobsView, 'jobs'],
+  [/^#\/partners$/, partnersList, 'partners'],
+  [/^#\/partner\/([\w-]+)$/, partnerDetail, 'partners'],
   [/^#\/guides$/, guidesList, 'guides'],
   [/^#\/guide\/([\w-]+)$/, guideView, 'guides'],
   [/^#\/settings$/, settingsView, 'settings']
@@ -41,13 +47,18 @@ async function render() {
     const m = hash.match(re);
     if (!m) continue;
     document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('active', a.dataset.nav === nav));
-    view.replaceChildren(h('div.empty', 'Loading…'));
+    const mine = ++renderSeq;
+    viewRoot.replaceChildren(h('div.empty', 'Loading…'));
+    const target = h('div');
+    currentView = target;
     try { await fn(...m.slice(1).map(x => (x ? decodeURIComponent(x) : x))); }
-    catch (e) { view.replaceChildren(h('div.notice.bad', e.message)); }
+    catch (e) { target.replaceChildren(h('div.notice.bad', e.message)); }
+    if (mine !== renderSeq) return;   // the user already moved on
+    viewRoot.replaceChildren(target);
     window.scrollTo(0, 0);
     return;
   }
-  view.replaceChildren(h('div.empty', 'Page not found. ', h('a', { href: '#/' }, 'Go to overview')));
+  viewRoot.replaceChildren(h('div.empty', 'Page not found. ', h('a', { href: '#/' }, 'Go to overview')));
 }
 window.addEventListener('hashchange', render);
 window.addEventListener('beforeunload', (e) => { if (dirty) { e.preventDefault(); e.returnValue = ''; } });
@@ -62,6 +73,7 @@ async function verticalIds() {
 
 // ---------------------------------------------------------------- overview ---
 async function overview() {
+  const view = currentView;
   setCrumbs('Overview');
   const o = await api('/api/overview');
   const ready = o.sites.filter(s => s.ready).length;
@@ -101,6 +113,7 @@ const checklist = (items) => h('ul.check', items.map(c => h('li', { class: c.ok 
 
 // ------------------------------------------------------------------- sites ---
 async function sitesList() {
+  const view = currentView;
   setCrumbs('Sites');
   const [sites, verts] = await Promise.all([api('/api/sites'), verticalIds()]);
   view.replaceChildren(
@@ -148,6 +161,7 @@ function newSiteModal(verts) {
 }
 
 async function siteDetail(slug, tab = 'overview') {
+  const view = currentView;
   const { site, status } = await api(`/api/sites/${slug}`);
   setCrumbs(['Sites', '#/sites'], site.brand);
   const tabs = h('nav.tabs', [['overview', 'Overview'], ['settings', 'Settings'], ['pages', 'Pages & content'], ['publish', 'Build & publish']]
@@ -179,6 +193,8 @@ async function siteSettingsTab(body, slug, site) {
   const verts = await verticalIds();
   const ed = createEditor(site, {
     _comment: { hidden: true },
+    partners: { hidden: true },
+    turnstileSiteKey: { label: 'Bot check site key (Turnstile)', hint: 'Optional, free. From Cloudflare → Turnstile → Add widget. The matching secret goes in Cloudflare as TURNSTILE_SECRET. See Guides → Go live.' },
     slug: { readonly: true, hint: 'Folder and Cloudflare project name. Fixed after creation.' },
     vertical: { widget: 'select', options: verts, hint: 'Changing this changes every page, the form and scoring. Regenerate content afterwards.' },
     brand: { hint: 'Shown in the header, titles and consent text.' },
@@ -266,6 +282,7 @@ function sitePublishTab(body, slug, site, status) {
 
 // ------------------------------------------------------------ page editor ---
 async function pageEditor(slug, file) {
+  const view = currentView;
   const [{ site }, page, pages] = await Promise.all([
     api(`/api/sites/${slug}`), api(`/api/sites/${slug}/content?file=${encodeURIComponent(file)}`), api(`/api/sites/${slug}/pages`)
   ]);
@@ -321,10 +338,11 @@ async function pageEditor(slug, file) {
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
 // ------------------------------------------------------------------- leads ---
-const STATUSES = ['new', 'contacted', 'qualified', 'sold', 'returned', 'dnc', 'bad'];
-const statusKind = { new: 'info', contacted: '', qualified: 'info', sold: 'ok', returned: 'warn', dnc: 'bad', bad: 'bad' };
+const STATUSES = ['new', 'contacted', 'qualified', 'sold', 'return_requested', 'returned', 'dnc', 'bad'];
+const statusKind = { new: 'info', contacted: '', qualified: 'info', sold: 'ok', return_requested: 'warn', returned: 'warn', dnc: 'bad', bad: 'bad' };
 
 async function leadsView() {
+  const view = currentView;
   setCrumbs('Leads');
   const { leads, lastPull } = await api('/api/leads');
   const sites = [...new Set(leads.map(l => l.site))];
@@ -450,16 +468,34 @@ async function leadDrawer(l, redraw) {
     toast(r.synced ? 'Saved and synced to the live site' : `Saved locally. ${r.syncError || ''}`, r.synced ? '' : 'bad');
     redraw(); close();
   } }, 'Save');
+  const decide = (newStatus, msg) => async (e) => {
+    const r = await act(e.target, () => api(`/api/leads/${l.id}`, { method: 'PATCH', body: { status: newStatus } }));
+    Object.assign(l, r.lead);
+    toast(r.synced ? msg : `Saved locally. ${r.syncError || ''}`, r.synced ? '' : 'bad');
+    redraw(); close();
+  };
+  let routeLog = [];
+  try { routeLog = JSON.parse(l.route_log || '[]'); } catch {}
+  const returnBox = l.status === 'return_requested' && h('div.notice.warn',
+    h('strong', `${l.buyer || 'The partner'} asked for a replacement.`), h('div.small', (l.notes || '').split('\n').at(-1)),
+    h('div.row', { style: { marginTop: '8px' } },
+      h('button.btn.sm.primary', { onclick: decide('returned', 'Return approved: their balance is credited back') }, 'Approve (credit them)'),
+      h('button.btn.sm', { onclick: decide('sold', 'Return rejected: lead stays sold') }, 'Reject')));
+  const routing = (l.partner_id || routeLog.length) && h('div.card', h('h3', 'Routing'),
+    h('p.small', l.partner_id ? `Delivered to ${l.buyer} on ${fmtDate(l.delivered_at)} for ${money(l.sold_price)}.` : 'Kept for you: no partner was eligible.'),
+    routeLog.length > 0 && h('ul.small', routeLog.map(r => h('li', `${r.id}: ${r.reason}`))));
   const close = overlay(h('div.drawer',
     h('div.row', h('h2', { style: { margin: 0 } }, `${l.first_name || ''} ${l.last_name || ''}`), h('span.pill', { class: `tier-${l.tier}` }, `Tier ${l.tier} · ${l.score}`), h('button.icon-btn', { style: { marginLeft: 'auto' }, onclick: () => close() }, '×')),
     h('p', h('a.btn', { href: `tel:${l.phone}` }, '📞 ', l.phone), ' ', l.email && h('a.btn', { href: `mailto:${l.email}` }, '✉ ', l.email)),
+    returnBox,
+    routing,
     h('div.card', h('h3', 'Work this lead'),
       h('label.f', h('span', 'Status'), status),
       h('label.f', h('span', 'Buyer'), buyer, h('span.hint', 'Only pass a lead to a company named in its consent (below), or to a partner the lead agreed to on your call. Record that OK in Notes.')),
       h('label.f', h('span', 'Sold price ($)'), price),
       h('label.f', h('span', 'Notes'), notes),
       save),
-    h('div.card', h('h3', 'Details'), kv({ site: l.site, service: l.service, city: l.city, zip: l.zip, received: fmtDate(l.created_at), duplicate_of: l.duplicate_of, suggested_price: l.suggested_price && money(l.suggested_price) })),
+    h('div.card', h('h3', 'Details'), kv({ site: l.site, service: l.service, city: l.city, zip: l.zip, received: fmtDate(l.created_at), duplicate_of: l.duplicate_of, suggested_price: l.suggested_price && money(l.suggested_price), bot_check: l.bot_check })),
     quoteSheet(l, v, answers),
     h('p', h('a.btn.sm', { href: `#/guide/call-scripts`, onclick: () => close() }, 'Open call scripts')),
     h('div.card', h('h3', 'Consent proof'), h('p.small', l.consent_text || '(consent text not pulled)'),
@@ -469,6 +505,7 @@ async function leadDrawer(l, redraw) {
 
 // --------------------------------------------------------------- verticals ---
 async function verticalsList() {
+  const view = currentView;
   setCrumbs('Verticals');
   const verts = await api('/api/verticals');
   cache.verticals = verts.map(v => v.id);
@@ -496,6 +533,7 @@ function newVerticalModal(verts) {
 }
 
 async function verticalEditor(id) {
+  const view = currentView;
   const v = await api(`/api/verticals/${id}`);
   setCrumbs(['Verticals', '#/verticals'], v.label);
   let mode = 'form';
@@ -553,14 +591,174 @@ async function verticalEditor(id) {
     h('div.sticky-bar', saveBtn, h('span.muted.small', 'Applies to every site using this vertical on its next build. New services need content generated.')));
 }
 
+// ---------------------------------------------------------------- partners ---
+// Realtors, lenders and agents who receive leads automatically. The directory
+// is private/partners.json on this PC; balances live in the cloud database.
+const rebuildNote = () => h('div.notice', h('strong', 'After changing partners, rebuild and deploy each affected site '),
+  '(Sites → Build & publish). The consent box on each page and the lead router both update on deploy.');
+
+async function loadBalances() {
+  try { return await api('/api/partner-balances'); } catch (e) { return { error: e.message, partners: {}, history: [] }; }
+}
+
+async function partnersList() {
+  const view = currentView;
+  setCrumbs('Partners');
+  const [d, bal] = await Promise.all([api('/api/partners'), loadBalances()]);
+  view.replaceChildren(
+    head('Partners', 'Leads go to these partners automatically, the second they come in. They pay per lead from a prepaid balance.',
+      h('button.btn.primary', { onclick: () => newPartnerModal() }, '+ Add partner')),
+    bal.error && h('div.notice.warn', 'Balances unavailable: ', bal.error),
+    d.partners.length ? h('div.table-wrap', h('table',
+      h('thead', h('tr', ['Partner', 'Sites & areas', 'Price', 'Cap / 7 days', 'Balance', 'Status'].map(t => h('th', t)))),
+      h('tbody', d.partners.map(p => {
+        const b = bal.partners?.[p.id];
+        const tiers = ['A', 'B', 'C'].filter(t => p.priceByTier?.[t] > 0).map(t => `${t} ${money(p.priceByTier[t])}`).join(' · ');
+        return h('tr.click', { onclick: () => (location.hash = `#/partner/${p.id}`) },
+          h('td', h('strong', p.name), h('div.muted.small', [p.company, p.license].filter(Boolean).join(' · '))),
+          h('td', p.assignments.length ? p.assignments.map(a => h('div.small', a.brand, h('span.muted', ` · ${a.cities.length ? a.cities.length + ' cities' : 'all cities'}`))) : h('span.muted.small', 'Not assigned to a site')),
+          h('td', tiers || money(p.pricePerLead), h('div.muted.small', `min tier ${p.minTier}`)),
+          h('td', b ? `${b.weekCount} / ${p.weeklyCap || '∞'}` : (p.weeklyCap || '∞')),
+          h('td', p.prepaid ? (b ? money(b.balance) : '—') : h('span.muted', 'invoiced')),
+          h('td', p.active ? pill('active', 'ok') : pill('paused', 'warn')));
+      }))
+    )) : h('div.card.empty', 'No partners yet. Add your first realtor or lender.'),
+    h('p.muted.small', { style: { marginTop: '10px' } }, `Stored privately in ${d.file} on this PC (never uploaded to GitHub). Back it up: open a partner and use Export, or copy that file somewhere safe.`)
+  );
+}
+
+function newPartnerModal() {
+  const f = (name, label, attrs = {}, hint) => h('label.f', h('span', label), h('input', { name, type: 'text', ...attrs }), hint && h('span.hint', hint));
+  const form = h('form', h('h2', 'Add partner'),
+    f('name', 'Name (as it should appear in the consent box)', { required: true, placeholder: 'Jane Smith' }),
+    f('company', 'Company', { placeholder: 'ABC Realty' }),
+    f('license', 'License', { placeholder: 'SC RE License #12345 or NMLS #12345' }),
+    f('email', 'Lead delivery email', { type: 'email', required: true }),
+    f('phone', 'Phone (shown to the lead)', { placeholder: '843-555-0100' }),
+    h('div.ed-cols', f('pricePerLead', 'Price per lead ($)', { type: 'number', value: 50, min: 0 }), f('weeklyCap', 'Max leads per 7 days', { type: 'number', value: 10, min: 0 })),
+    h('div.row', h('button.btn.primary', { type: 'submit' }, 'Add partner'), h('button.btn', { type: 'button', onclick: () => close() }, 'Cancel')));
+  form.onsubmit = async (e) => {
+    e.preventDefault();
+    const b = Object.fromEntries(new FormData(form));
+    const r = await act(form.querySelector('[type=submit]'), () => api('/api/partners', { method: 'POST', body: { ...b, active: true, prepaid: true, minTier: 'B' } }), 'Partner added');
+    close(); location.hash = `#/partner/${r.id}`;
+  };
+  const close = overlay(h('div.modal', form), { center: true });
+}
+
+async function partnerDetail(id) {
+  const view = currentView;
+  const [d, bal] = await Promise.all([api('/api/partners'), loadBalances()]);
+  const p = d.partners.find(x => x.id === id);
+  if (!p) throw new Error('Partner not found');
+  setCrumbs(['Partners', '#/partners'], p.name);
+  const mark = () => { dirty = true; saveBtn.disabled = false; };
+  const val = { ...p, priceByTier: { ...p.priceByTier } };
+  const input = (key, label, attrs = {}, hint) => h('label.f', h('span', label),
+    h('input', { type: 'text', value: val[key] ?? '', ...attrs, oninput: (e) => { val[key] = attrs.type === 'number' ? Number(e.target.value) : e.target.value; mark(); } }),
+    hint && h('span.hint', hint));
+  const check = (key, label, hint) => h('label.f', h('span', h('input', { type: 'checkbox', checked: !!val[key], onchange: (e) => { val[key] = e.target.checked; mark(); } }), ' ', label), hint && h('span.hint', hint));
+  const tierInput = (t) => h('label.f', h('span', `Tier ${t} price ($)`), h('input', { type: 'number', min: 0, value: val.priceByTier[t] || '', placeholder: 'flat', oninput: (e) => { val.priceByTier[t] = Number(e.target.value) || 0; mark(); } }));
+
+  // Site + city assignments
+  const asg = Object.fromEntries(p.assignments.map(a => [a.site, { ...a }]));
+  const sitesBox = h('div', d.sites.map(s => {
+    const a = asg[s.slug];
+    const on = h('input', { type: 'checkbox', checked: !!a, onchange: (e) => { if (e.target.checked) asg[s.slug] = { site: s.slug, cities: [], zips: [], services: [] }; else delete asg[s.slug]; mark(); draw(); } });
+    const inner = h('div', { style: { paddingLeft: '24px' } });
+    const draw = () => {
+      const cur = asg[s.slug];
+      inner.replaceChildren();
+      if (!cur) return;
+      inner.append(
+        h('div.f-label', 'Cities ', h('span.hint', { style: { display: 'inline' } }, '(none checked = every city on this site)')),
+        h('div.row', { style: { gap: '4px 14px', marginBottom: '8px' } }, s.cities.map(c => h('label.small', h('input', { type: 'checkbox', checked: cur.cities.includes(c.slug), onchange: (e) => { cur.cities = e.target.checked ? [...cur.cities, c.slug] : cur.cities.filter(x => x !== c.slug); mark(); } }), ' ', c.name))),
+        h('div.f-label', 'Services ', h('span.hint', { style: { display: 'inline' } }, '(none checked = all)')),
+        h('div.row', { style: { gap: '4px 14px', marginBottom: '8px' } }, s.services.map(sv => h('label.small', h('input', { type: 'checkbox', checked: (cur.services || []).includes(sv.slug), onchange: (e) => { cur.services = e.target.checked ? [...(cur.services || []), sv.slug] : cur.services.filter(x => x !== sv.slug); mark(); } }), ' ', sv.name))),
+        h('label.f', h('span', 'Extra ZIP codes (optional)'), h('input', { type: 'text', value: (cur.zips || []).join(', '), placeholder: '29577, 29579', oninput: (e) => { cur.zips = e.target.value.split(/[\s,]+/).filter(Boolean); mark(); } }), h('span.hint', 'Leads from homepage/guide pages with these ZIPs also go to this partner.'))
+      );
+    };
+    draw();
+    return h('div.card', { style: { padding: '12px 14px' } }, h('label', on, ' ', h('strong', s.brand), h('span.muted.small', ` · ${s.vertical}`)), inner);
+  }));
+
+  const saveBtn = h('button.btn.primary', { disabled: true, onclick: async (e) => {
+    const { assignments, consentName, id: _id, ...fields } = val;
+    await act(e.target, () => api(`/api/partners/${id}`, { method: 'PUT', body: { ...fields, assignments: Object.values(asg) } }), 'Partner saved. Rebuild and deploy the sites to apply.');
+    dirty = false; e.target.disabled = true;
+  } }, 'Save partner');
+
+  // Portal link
+  const liveDomains = d.sites.filter(s => p.assignments.some(a => a.site === s.slug) && s.domain && !/TODO/.test(s.domain));
+  const domain = liveDomains[0]?.domain;
+  const link = domain ? `https://${domain}/partner/#${p.portalToken}` : null;
+  const copy = async (text, what) => { try { await navigator.clipboard.writeText(text); toast(`${what} copied`); } catch { toast('Copy failed: select the text instead', 'bad'); } };
+  const portal = h('div.card', h('h3', 'Partner portal'),
+    h('p.small.muted', 'A private link where this partner sees their leads, balance and asks for replacements. Send it to them by text or email. Treat it like a password.'),
+    link ? h('div', h('input', { type: 'text', readOnly: true, value: link, onclick: (e) => e.target.select() }),
+      h('div.row', { style: { marginTop: '8px' } }, h('button.btn.sm', { onclick: () => copy(link, 'Portal link') }, 'Copy portal link'),
+        h('button.btn.sm', { onclick: async (e) => { if (!confirm('Make a new link? The old one stops working after you rebuild and deploy.')) return; await act(e.target, () => api(`/api/partners/${id}/token`, { method: 'POST' }), 'New link created. Rebuild and deploy to activate it.'); render(); } }, 'Make a new link')))
+      : h('p.small', 'Assign this partner to a site that has a real domain to get their link.'));
+
+  // Balance + payments
+  const b = bal.partners?.[id];
+  const amount = h('input', { type: 'number', min: 1, step: 'any', placeholder: 'e.g. 300' });
+  const note = h('input', { type: 'text', placeholder: 'e.g. Zelle 10/27, 5 leads' });
+  const history = (bal.history || []).filter(x => x.partner_id === id);
+  const payments = h('div.card', h('h3', 'Balance & payments'),
+    bal.error ? h('p.small.muted', bal.error) : h('div',
+      h('div.grid', { style: { gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', marginBottom: '12px' } },
+        stat(money(b?.balance), 'Balance'), stat(b?.weekCount ?? 0, 'Last 7 days'), stat(b?.totalDelivered ?? 0, 'All time'), stat(money(b?.spent), 'Billed')),
+      h('div.ed-cols', h('label.f', h('span', 'Amount ($)'), amount, h('span.hint', 'Positive = payment received. Negative = adjustment.')), h('label.f', h('span', 'Note'), note)),
+      h('div.row',
+        h('button.btn.primary', { onclick: async (e) => { if (!Number(amount.value)) return toast('Enter an amount', 'bad'); await act(e.target, () => api(`/api/partners/${id}/credit`, { method: 'POST', body: { amount: Number(amount.value), note: note.value } }), 'Payment recorded'); render(); } }, 'Record payment'),
+        h('button.btn', { onclick: async (e) => { const n = Math.max(1, Math.round(5 * (val.pricePerLead || 50))); await act(e.target, () => api(`/api/partners/${id}/credit`, { method: 'POST', body: { amount: n, note: 'Free pilot: 5 leads' } }), `Free pilot added (${money(n)})`); render(); } }, 'Give 5 free pilot leads')),
+      history.length > 0 && h('div.table-wrap', { style: { marginTop: '12px' } }, h('table', h('thead', h('tr', h('th', 'Date'), h('th', 'Amount'), h('th', 'Note'))),
+        h('tbody', history.map(x => h('tr', h('td.muted.small', fmtDate(x.created_at)), h('td', money(x.amount)), h('td', x.note || '')))))),
+      val.payLink ? '' : h('p.small.muted', { style: { marginTop: '8px' } }, 'Tip: create a free Stripe Payment Link for a lead pack and paste it below so partners can top up from their portal.')));
+
+  const exportBtn = h('button.btn.sm', { onclick: () => copy(JSON.stringify(p, null, 2), 'Partner details (JSON)') }, 'Export');
+  const delBtn = h('button.btn.danger', { onclick: async (e) => {
+    if (!confirm(`Remove ${p.name}? Their past leads stay in your records.`)) return;
+    await act(e.target, () => api(`/api/partners/${id}`, { method: 'DELETE' }), 'Partner removed. Rebuild and deploy affected sites.');
+    dirty = false; location.hash = '#/partners';
+  } }, 'Remove partner');
+
+  view.replaceChildren(
+    head(p.name, [p.company, p.license].filter(Boolean).join(' · ') || 'Partner', exportBtn),
+    rebuildNote(),
+    h('div.grid.two',
+      h('div',
+        h('div.card', h('h3', 'Details'),
+          input('name', 'Name', {}, `Consent boxes will read: "${p.consentName}". Changing it requires a rebuild.`),
+          input('company', 'Company'), input('license', 'License'),
+          input('email', 'Lead delivery email', { type: 'email' }, 'Every lead is emailed here the moment it arrives.'),
+          input('phone', 'Phone', {}, 'Shown to the lead on the thank-you page and in their confirmation email.'),
+          input('bookingUrl', 'Booking link', { placeholder: 'https://cal.com/jane/consult' }, 'Their Cal.com or Calendly link. Leads book directly with them right after submitting.'),
+          input('webhook', 'Instant alert webhook (optional)', { placeholder: 'https://discord.com/api/webhooks/…' }),
+          input('payLink', 'Payment link (optional)', { placeholder: 'https://buy.stripe.com/…' })),
+        h('div.card', h('h3', 'Pricing & limits'),
+          h('div.ed-cols', input('pricePerLead', 'Flat price per lead ($)', { type: 'number', min: 0 }), input('weeklyCap', 'Max leads per 7 days', { type: 'number', min: 0 }, '0 = no limit')),
+          h('div.ed-cols', tierInput('A'), tierInput('B'), tierInput('C')),
+          h('label.f', h('span', 'Lowest tier they receive'), h('select', { onchange: (e) => { val.minTier = e.target.value; mark(); } }, ['A', 'B', 'C'].map(t => h('option', { value: t, selected: val.minTier === t }, `Tier ${t}`))),
+            h('span.hint', 'Lower-tier leads stay with you.')),
+          check('prepaid', 'Prepaid (only deliver while they have balance)', 'Recommended. Turn off only for partners you invoice.'),
+          check('active', 'Active (receiving leads)'))),
+      h('div', h('div.card', h('h3', 'Where they get leads'), sitesBox), portal, payments)),
+    h('div.sticky-bar', saveBtn, h('span', { style: { marginLeft: 'auto' } }), delBtn)
+  );
+}
+
 // ------------------------------------------------------------------ guides ---
 async function guidesList() {
+  const view = currentView;
   setCrumbs('Guides');
   const docs = await api('/api/docs');
   view.replaceChildren(head('Guides', 'Step-by-step help and call scripts.'),
     h('div.grid', docs.filter(d => d.exists).map(d => h('a.card', { href: `#/guide/${d.id}`, style: { textDecoration: 'none', color: 'inherit' } }, h('h2', d.title)))));
 }
 async function guideView(id) {
+  const view = currentView;
   const d = await api(`/api/docs/${id}`);
   setCrumbs(['Guides', '#/guides'], d.title);
   // These are trusted files from the repo's docs/ folder (never lead data),
@@ -574,6 +772,7 @@ async function guideView(id) {
 
 // -------------------------------------------------------------------- jobs ---
 async function jobsView() {
+  const view = currentView;
   setCrumbs('Activity');
   const jobs = await api('/api/jobs');
   const quick = [['test', 'Run tests'], ['leads', 'Pull leads'], ['cf-whoami', 'Check Cloudflare login']];
@@ -590,6 +789,7 @@ async function jobsView() {
 
 // ---------------------------------------------------------------- settings ---
 async function settingsView() {
+  const view = currentView;
   setCrumbs('Settings');
   const s = await api('/api/settings');
   const changes = {};

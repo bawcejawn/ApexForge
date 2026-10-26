@@ -28,6 +28,7 @@ import {
 } from '../lib/core.mjs';
 import { lintBody } from '../lib/content.mjs';
 import { createSite } from '../scripts/new-site.mjs';
+import { loadPartners, savePartners, partnerId, newToken, consentName, PARTNER_FIELDS, PARTNERS_FILE } from '../lib/partners.mjs';
 import { loadEnv } from '../scripts/env.mjs';
 
 loadEnv();
@@ -92,12 +93,23 @@ function siteStatus(slug) {
     { id: 'content', label: 'Content written for every page', ok: written === pages.length, detail: `${written}/${pages.length}` },
     { id: 'reviewed', label: 'Every page human-reviewed', ok: reviewed === pages.length, detail: `${reviewed}/${pages.length}` },
     { id: 'flags', label: 'No compliance flags', ok: Object.keys(review).length === 0, detail: `${Object.keys(review).length} flagged` },
+    ...(site.vertical === 'life-insurance' ? [] : [routingCheck(site)]),
     { id: 'built', label: 'Built', ok: !!built, detail: built || '' }
   ];
   return {
     slug, brand: site.brand, domain: site.domain, vertical: site.vertical, cities: site.cities.length,
     pages: pages.length, written, reviewed, ai, flagged: Object.keys(review).length, built, todos, checklist,
     ready: checklist.every(c => c.ok)
+  };
+}
+
+/** Checklist item: does this site have an active partner to route leads to? */
+function routingCheck(site) {
+  const dir = loadPartners();
+  const active = (site.partners || []).filter(a => dir[a.id]?.active);
+  return {
+    id: 'routing', label: 'At least one active partner receives leads', ok: active.length > 0,
+    detail: active.length ? active.map(a => dir[a.id].name).join(', ') : 'No partners yet: leads stay with you. Add one under Partners.'
   };
 }
 
@@ -191,7 +203,7 @@ const publicJob = ({ child, ...j }) => ({ ...j, log: undefined, lines: j.log.len
 
 // ----------------------------------------------------------------- leads ---
 const readLeadsDb = () => (fs.existsSync(LEADS_FILE) ? readJSON(LEADS_FILE) : { leads: {}, lastPull: {} });
-const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'sold', 'returned', 'dnc', 'bad'];
+const LEAD_STATUSES = ['new', 'contacted', 'qualified', 'sold', 'return_requested', 'returned', 'dnc', 'bad'];
 
 async function updateLead(id, patch) {
   const db = readLeadsDb();
@@ -437,11 +449,121 @@ route('GET', '/api/leads', () => {
 });
 route('PATCH', '/api/leads/:id', async ({ id }, req) => updateLead(id, await readBody(req)));
 
+// Partners (private/partners.json) ----------------------------------------
+// Directory edits are local. Balances and payments live in the cloud database,
+// so those calls go to the first live site in LEAD_APIS.
+const liveApi = () => String(process.env.LEAD_APIS || '').split(',').map(s => s.trim().replace(/\/$/, '')).filter(Boolean)[0];
+async function callLive(pathname, opts = {}) {
+  const api = liveApi();
+  if (!api || !process.env.ADMIN_TOKEN) throw new HttpError(400, 'Go live first: set ADMIN_TOKEN and LEAD_APIS in Settings → Leads.');
+  const r = await fetch(api + pathname, {
+    ...opts, headers: { authorization: `Bearer ${process.env.ADMIN_TOKEN}`, 'content-type': 'application/json', ...(opts.headers || {}) },
+    signal: AbortSignal.timeout(15000)
+  }).catch(e => { throw new HttpError(502, `Couldn't reach ${api}: ${e.message}`); });
+  const out = await r.json().catch(() => ({}));
+  if (!r.ok) throw new HttpError(r.status === 404 ? 502 : r.status, out.error || `Live site returned HTTP ${r.status}. Deploy the latest version.`);
+  return out;
+}
+function cleanPartner(input, prev = {}) {
+  const p = { ...PARTNER_FIELDS, ...prev };
+  for (const k of Object.keys(PARTNER_FIELDS)) if (k in input && k !== 'portalToken') p[k] = input[k];
+  for (const k of ['name', 'company', 'license', 'email', 'phone', 'bookingUrl', 'webhook', 'payLink']) p[k] = String(p[k] ?? '').trim().slice(0, 300);
+  for (const k of ['bookingUrl', 'webhook', 'payLink']) if (p[k] && !/^https:\/\//.test(p[k])) throw new HttpError(400, `${k} must start with https://`);
+  if (p.email && !/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(p.email)) throw new HttpError(400, 'Email looks wrong');
+  if (!p.name) throw new HttpError(400, 'Name is required (exactly as it should appear in the consent box)');
+  p.pricePerLead = Math.max(0, Number(p.pricePerLead) || 0);
+  p.weeklyCap = Math.max(0, Math.round(Number(p.weeklyCap) || 0));
+  p.priceByTier = Object.fromEntries(['A', 'B', 'C'].map(t => [t, Math.max(0, Number(p.priceByTier?.[t]) || 0)]));
+  if (!['A', 'B', 'C'].includes(p.minTier)) p.minTier = 'B';
+  p.prepaid = !!p.prepaid; p.active = !!p.active;
+  p.portalToken = prev.portalToken || newToken();
+  return p;
+}
+function assignmentsByPartner() {
+  const out = {};
+  for (const slug of listSlugs()) {
+    const site = readJSON(path.join(SITES_DIR, slug, 'site.json'));
+    for (const a of site.partners || []) (out[a.id] ||= []).push({ site: slug, brand: site.brand, domain: site.domain, cities: a.cities || [], zips: a.zips || [], services: a.services || [], minTier: a.minTier || '' });
+  }
+  return out;
+}
+route('GET', '/api/partners', () => {
+  const partners = loadPartners();
+  const assigned = assignmentsByPartner();
+  const sites = listSlugs().map(slug => {
+    const s = readJSON(path.join(SITES_DIR, slug, 'site.json'));
+    const v = readJSON(path.join(VERTICALS_DIR, `${s.vertical}.json`));
+    return { slug, brand: s.brand, domain: s.domain, vertical: s.vertical, cities: s.cities.map(c => ({ slug: c.slug, name: c.name })), services: v.services.map(x => ({ slug: x.slug, name: x.name })) };
+  });
+  return {
+    file: path.relative(ROOT, PARTNERS_FILE), liveApi: liveApi() || null, sites,
+    partners: Object.entries(partners).map(([id, p]) => ({ id, ...p, consentName: consentName(p), assignments: assigned[id] || [] }))
+  };
+});
+route('POST', '/api/partners', async (_, req) => {
+  const b = await readBody(req);
+  const all = loadPartners();
+  const id = partnerId(b.name || '', all);
+  all[id] = cleanPartner(b);
+  savePartners(all);
+  return { ok: true, id };
+});
+route('PUT', '/api/partners/:id', async ({ id }, req) => {
+  const all = loadPartners();
+  if (!all[id]) throw new HttpError(404, 'Partner not found');
+  const b = await readBody(req);
+  all[id] = cleanPartner(b, all[id]);
+  savePartners(all);
+  // Site assignments: [{ site, cities, zips, services, minTier }]
+  if (Array.isArray(b.assignments)) {
+    for (const slug of listSlugs()) {
+      const f = path.join(SITES_DIR, slug, 'site.json');
+      const site = readJSON(f);
+      const want = b.assignments.find(a => a.site === slug);
+      const others = (site.partners || []).filter(a => a.id !== id);
+      const valid = new Set(site.cities.map(c => c.slug));
+      site.partners = want ? [...others, {
+        id, cities: (want.cities || []).filter(c => valid.has(c)),
+        ...(want.zips?.length ? { zips: want.zips.map(z => String(z).trim()).filter(z => /^\d{5}$/.test(z)) } : {}),
+        ...(want.services?.length ? { services: want.services } : {}),
+        ...(want.minTier ? { minTier: want.minTier } : {})
+      }] : others;
+      writeJSON(f, site);
+    }
+  }
+  return { ok: true };
+});
+route('POST', '/api/partners/:id/token', ({ id }) => {
+  const all = loadPartners();
+  if (!all[id]) throw new HttpError(404, 'Partner not found');
+  all[id].portalToken = newToken();
+  savePartners(all);
+  return { ok: true, portalToken: all[id].portalToken };
+});
+route('DELETE', '/api/partners/:id', ({ id }) => {
+  const all = loadPartners();
+  if (!all[id]) throw new HttpError(404, 'Partner not found');
+  delete all[id];
+  savePartners(all);
+  for (const slug of listSlugs()) {
+    const f = path.join(SITES_DIR, slug, 'site.json');
+    const site = readJSON(f);
+    if ((site.partners || []).some(a => a.id === id)) { site.partners = site.partners.filter(a => a.id !== id); writeJSON(f, site); }
+  }
+  return { ok: true };
+});
+route('GET', '/api/partner-balances', () => callLive('/api/partner-credits'));
+route('POST', '/api/partners/:id/credit', async ({ id }, req) => {
+  const b = await readBody(req);
+  return callLive('/api/partner-credits', { method: 'POST', body: JSON.stringify({ partner_id: id, amount: Number(b.amount), note: b.note || '' }) });
+});
+
 // Guides: repo docs shown inside the admin (allowlisted files only).
 const DOCS = {
   'setup-windows': { title: 'Windows setup, step by step', file: 'docs/SETUP-WINDOWS.md' },
   'call-scripts': { title: 'Call scripts', file: 'docs/CALL-SCRIPTS.md' },
   'next-steps': { title: 'Next steps checklist', file: 'docs/NEXT-STEPS.md' },
+  'go-live': { title: 'Go live: email, bot check, partner delivery', file: 'docs/GO-LIVE.md' },
   partners: { title: 'Working with partners (how you get paid)', file: 'docs/PARTNER-AGREEMENT.md' },
   plan: { title: 'Business plan & architecture', file: 'docs/PLAN.md' }
 };
