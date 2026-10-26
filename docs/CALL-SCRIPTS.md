@@ -220,13 +220,17 @@ Every first text includes your name, business and the opt-out.
 
 You already know these people. Keep it short and specific.
 
-> "Hey {name}, quick one. I've built local websites for Horry County that bring in people who want to sell, buy or get a mortgage. Every lead fills out a detailed form, agrees to be contacted, and I personally call them first to make sure they're real and serious before anyone gets passed along.
+> "Hey {name}, quick one. I've built local websites for Horry County that bring in people who want to {sell or buy a home / get a mortgage}. Every lead fills out a detailed form, gets checked automatically for a real phone and email, and agrees in writing to hear from **you by name**.
 >
-> I'd like to send you the first **5 verified leads free** so you can judge the quality yourself. If you like them, we set a flat price per verified lead, with a weekly cap you choose. If a lead turns out to be a bad number or a duplicate, I replace it. Interested?"
+> They land in your email the second they submit, exclusive to you, and they can book straight onto your calendar. You'd get a private portal with all your leads.
+>
+> I'd like to give you the first **5 leads free** so you can judge the quality. If you like them, it's a flat price per lead from a prepaid balance, with a weekly cap you choose, only in the areas you want. Bad number or duplicate? Hit replace in the portal within 72 hours and I credit you. Want in?"
+
+**If they ask "how many leads?"** — "New sites take a few months to build up on Google, so it starts slow and grows. You'll only ever pay for what's delivered, and you can pause anytime."
 
 **Get from each partner before launch:**
-- Exact name, brokerage/company and license or NMLS number (for your intro script now, and for the consent box later if you ever let them contact leads directly)
-- License number (SC real estate license or NMLS)
+- Name and company **exactly as consumers should see them** (it goes in the consent box), plus license or NMLS number
+- Lead delivery email, phone, and their Cal.com/Calendly link if they have one
 - Which cities/price ranges they want, and their weekly cap
 - Best way to receive leads (text, email) and how fast they'll call (ask for same-day)
 

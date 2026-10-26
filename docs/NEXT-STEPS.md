@@ -2,7 +2,7 @@
 
 **Starting position:** licensed SC life agent · strong realtor network in Horry County · a few lender contacts · full-time job, so time is the constraint.
 
-**Plan:** launch the life insurance site first (you close those yourself), then real estate and mortgage once each partner agrees to be named in the consent box. You call every lead yourself at first to judge quality.
+**Plan:** CPP Holdings LLC owns the sites and the leads. Life insurance leads come to Carl. Real-estate and mortgage leads are checked automatically and delivered instantly to prepaid partners, with no calling or vetting by you. Anything no partner can take stays with you.
 
 Detailed click-by-click instructions with status checks are in **[SETUP-WINDOWS.md](SETUP-WINDOWS.md)**. Call scripts are in **[CALL-SCRIPTS.md](CALL-SCRIPTS.md)**. Both are also in the admin under **Guides & scripts**.
 
@@ -25,20 +25,25 @@ You can keep building the site this week, but **don't launch or take a lead unti
 - [ ] Parts 8–10: Cloudflare, deploy, test lead, Search Console
 - [ ] Refresh on Symmetry's **Navigator** quoting tool (in HQ) so the quote sheet → quote step takes minutes
 
-## Week 2 — line up partners (no website work needed)
+## Go live checklist (after Setup Part 9)
 
-- [ ] Pick **one realtor** and **one lender** to start. Use the pitch in *Call scripts, Part 4* and the agreement in *Working with partners* (docs/PARTNER-AGREEMENT.md).
+- [ ] Business email + automatic emails + bot check: *Guides → Go live* Parts A–C
+- [ ] First partner set up and receiving: Part D
+
+## Line up partners (can start now, before launch)
+
+- [ ] Pick **2–3 realtors** and **1–2 lenders** to start. Use the pitch in *Call scripts, Part 4* and the agreement in *Working with partners*.
 - [ ] Get from each: name, company, license/NMLS #, cities, weekly cap, how they want introductions.
 - [ ] Have each confirm the flat per-lead fee structure with their broker-in-charge / compliance team.
 
-## Week 3 — launch real estate + mortgage
+## Launch real estate + mortgage
 
-- [ ] In the admin, fill in **Grand Strand Home Value** and **Grand Strand Mortgage Match** (your S-Corp is the only buyer; partners float), same Parts 5–10 as the life site.
-- [ ] Send each partner their first 5 verified leads free.
+- [ ] Same Setup Parts 5–10 for **Grand Strand Home Value** and **Grand Strand Mortgage Match**.
+- [ ] Add each partner in **Admin → Partners**, assign cities, give the 5 free pilot leads, rebuild + deploy, send them their portal link.
 
 ## Weeks 4–8 — measure, then decide
 
-- [ ] Track every lead's status and notes. After 30–50 leads, review the quality metrics in *Call scripts, Part 5*.
+- [ ] Watch replacement requests and partner feedback. After 30–50 leads, tell Claude which cities and tiers convert best; we'll tune scoring and prices.
 - [ ] Tell Claude which pages/cities bring good vs. bad leads; we'll tighten forms and grow the pages that work.
 - [ ] Ask realtors and lenders to refer their closing clients to you for mortgage protection (reciprocal, no per-policy payments).
 - [ ] When the important pieces are in place (domains bought, partners named), make the GitHub repo private: **GitHub → ApexForge → Settings → General → Danger Zone → Change visibility**.

@@ -2,7 +2,7 @@
 REM ---------------------------------------------------------------------------
 REM  Double-click to SAVE your edits to GitHub and GET the latest updates.
 REM  Run it before and after each work session with Claude.
-REM  Your .env (keys) and data\ (leads) are never uploaded.
+REM  Your .env (keys), data\ (leads) and private\ (partners) are never uploaded.
 REM ---------------------------------------------------------------------------
 title ApexForge Sync
 cd /d "%~dp0"
@@ -29,6 +29,13 @@ git push
 
 echo  4/4  Updating installed packages...
 call npm install --no-audit --no-fund >nul
+
+REM Back up the private partner list (never uploaded to GitHub).
+if exist private\partners.json (
+  if not exist "%USERPROFILE%\Documents\ApexForge-backup" mkdir "%USERPROFILE%\Documents\ApexForge-backup"
+  copy /Y private\partners.json "%USERPROFILE%\Documents\ApexForge-backup\partners.json" >nul
+  echo       Partner list backed up to Documents\ApexForge-backup
+)
 
 echo.
 echo  Done. You're up to date.

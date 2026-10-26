@@ -12,7 +12,9 @@ Generate SEO lead sites for life insurance, mortgage and real estate in one comm
 |---|---|
 | **[docs/SETUP-WINDOWS.md](docs/SETUP-WINDOWS.md)** | Click-by-click Windows setup with a status check after every part |
 | **[docs/CALL-SCRIPTS.md](docs/CALL-SCRIPTS.md)** | Call, voicemail and text scripts for life, real estate and mortgage leads, plus the partner pitch |
-| [docs/NEXT-STEPS.md](docs/NEXT-STEPS.md) | The Horry County launch plan, week by week |
+| [docs/GO-LIVE.md](docs/GO-LIVE.md) | Automatic delivery to partners, emails, bot check, payments |
+| [docs/PARTNER-AGREEMENT.md](docs/PARTNER-AGREEMENT.md) | How partners pay, pricing, agreement template |
+| [docs/NEXT-STEPS.md](docs/NEXT-STEPS.md) | The Horry County launch plan |
 | [docs/PLAN.md](docs/PLAN.md) | Architecture, $50k/month math, verticals, SEO, compliance, Koinos, roadmap |
 | [docs/PROJECT-BRIEF.md](docs/PROJECT-BRIEF.md) | The original project brief |
 | [koinos/README.md](koinos/README.md) | Optional on-chain settlement layer |
@@ -36,6 +38,7 @@ A local control panel for everything below, no terminal needed after this:
 - **Pages & content** — every page with source, word count, compliance flags and review status; Markdown editor with live preview; write/regenerate pages with AI
 - **Build & publish** — build, local preview, deploy to Cloudflare, plus the one-time dashboard steps
 - **Leads** — pull from live sites, filter/search, a call-ready **quote sheet** (age, BMI, underwriting read, copy button) and a still-to-gather checklist, call/email, set status, buyer, price and notes (syncs back to the live site), view consent proof, export CSV
+- **Partners** — realtors, lenders and agents who receive leads automatically: areas, tiers, prices, weekly caps, prepaid balances, payments, private portal links
 - **Verticals** — edit services, FAQs, form fields, scoring rules and compliance rules (form view or raw JSON), or create a new vertical
 - **Settings** — AI keys/models with Ollama status, admin token generator, Cloudflare login + database setup, settlement mode
 - **Guides & scripts** — setup guide, call scripts and plan, printable

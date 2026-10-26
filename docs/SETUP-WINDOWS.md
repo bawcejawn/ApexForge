@@ -225,7 +225,7 @@ This is what lets you keep a full-time job: leads pick a time that suits you.
 
 > **✅ Status check:** your test lead shows in **Leads**, and Search Console shows the sitemap as **Success** (can take a day).
 
-**🛑 Checkpoint:** tell Claude "Part 10 done". Then repeat Parts 5–10 for the real-estate and mortgage sites once your partners are lined up (see **Guides → Call scripts → Part 4**).
+**🛑 Checkpoint:** tell Claude "Part 10 done". Next: **Guides → Go live** (business email, automatic emails, bot check, and your first partner). Then repeat Parts 5–10 for the real-estate and mortgage sites.
 
 ---
 
@@ -233,7 +233,8 @@ This is what lets you keep a full-time job: leads pick a time that suits you.
 
 - **Double-click `Sync-ApexForge.cmd`** before and after each session with Claude. It saves your edits to GitHub and pulls in anything Claude has added.
 - The first time, a GitHub sign-in window appears. Sign in and approve.
-- Your `.env` file (keys and passwords) and `data\` folder (leads) never leave your PC.
+- Your `.env` file (keys and passwords), `data\` folder (leads) and `private\` folder (partner contacts) never go to GitHub.
+- Sync also copies `private\partners.json` to **Documents\ApexForge-backup** each time, so your partner list isn't lost if the PC dies. Copy that folder to OneDrive or a USB drive now and then.
 
 ## Everyday routine (about 15 minutes a day)
 
