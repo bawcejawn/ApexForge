@@ -1,12 +1,12 @@
 {
-  "_comment": "Floating-partner mode: only your S-Corp is named in consent. You call every lead, get their OK on the phone to introduce a partner, then hand off. Add a partner to buyers later only if you want them to contact leads directly.",
+  "_comment": "Owned by CPP Holdings LLC. Leads are routed automatically to the partners listed under partners (managed in the admin: Partners). Each page names the partners covering that city in its consent box.",
   "slug": "horry-homes",
   "brand": "Grand Strand Home Value",
   "domain": "TODO-yourdomain.com",
   "vertical": "real-estate",
   "state": "SC",
   "stateName": "South Carolina",
-  "consentAbout": "buying or selling a home, including being introduced, with my permission, to a licensed local real estate agent, and mortgage protection life insurance",
+  "consentAbout": "buying or selling a home, and mortgage protection life insurance",
   "cities": [
     {
       "name": "Myrtle Beach",
@@ -56,17 +56,19 @@
   ],
   "maxCityPages": 9,
   "bookingUrl": "",
+  "turnstileSiteKey": "",
   "operator": {
-    "legalName": "TODO Your S-Corp legal name",
-    "address": "TODO Street, City, SC ZIP",
+    "legalName": "CPP Holdings LLC",
+    "address": "4041 Long Line Lane, Myrtle Beach, SC 29579",
     "email": "TODO@yourdomain.com"
   },
   "buyers": [
     {
-      "name": "TODO Your S-Corp legal name",
+      "name": "CPP Holdings LLC",
       "license": ""
     }
   ],
+  "partners": [],
   "author": {
     "name": "Carl Padavano",
     "credentials": "Horry County resident and licensed South Carolina insurance agent",

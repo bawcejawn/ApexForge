@@ -1,5 +1,5 @@
 {
-  "_comment": "Your life insurance site. You are the licensed agent who calls these leads. Replace every TODO in the admin (Sites > Grand Strand Life Quotes > Settings).",
+  "_comment": "Life insurance site, owned by CPP Holdings LLC. Leads go to Carl (licensed agent) by default. Add other licensed agents under partners to route overflow or tiers to them.",
   "slug": "horry-life",
   "brand": "Grand Strand Life Quotes",
   "domain": "TODO-yourdomain.com",
@@ -50,17 +50,23 @@
   ],
   "maxCityPages": 8,
   "bookingUrl": "",
+  "turnstileSiteKey": "",
   "operator": {
-    "legalName": "TODO Your S-Corp legal name",
-    "address": "TODO Street, City, SC ZIP",
+    "legalName": "CPP Holdings LLC",
+    "address": "4041 Long Line Lane, Myrtle Beach, SC 29579",
     "email": "TODO@yourdomain.com"
   },
   "buyers": [
     {
       "name": "Carl Padavano",
       "license": "SC Insurance Producer #20735813"
+    },
+    {
+      "name": "CPP Holdings LLC",
+      "license": ""
     }
   ],
+  "partners": [],
   "author": {
     "name": "Carl Padavano",
     "credentials": "Licensed South Carolina life insurance agent",
