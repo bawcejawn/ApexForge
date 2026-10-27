@@ -1,0 +1,179 @@
+---
+// Interactive tool pages. Right now: the life insurance needs calculator
+// (/life-insurance-calculator/), built only for life-insurance sites.
+//
+// Why it matters: "how much life insurance do I need" is one of the most
+// searched life questions, calculator pages earn links, and the result fills
+// in the coverage amount on the lead form, so visitors arrive with a number.
+//
+// Compliance: it estimates COVERAGE NEEDED from the visitor's own numbers.
+// It never shows premiums or rates (those come from carriers).
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import Faq from '../components/Faq.astro';
+import { site, vertical } from '../lib/site.mjs';
+import { faqSchema, breadcrumbSchema } from '../lib/schema.mjs';
+
+export function getStaticPaths() {
+  // Only life-insurance sites get this page. Other sites build nothing here.
+  return process.env.SITE && vertical.id === 'life-insurance' ? [{ params: { tool: 'life-insurance-calculator' } }] : [];
+}
+
+const title = `Life Insurance Calculator: How Much Do I Need? | ${site.brand}`.length <= 62
+  ? `Life Insurance Calculator: How Much Do I Need? | ${site.brand}` : 'Life Insurance Calculator: How Much Do I Need?';
+const description = `Estimate how much life insurance your family would need, in about a minute. Free calculator for ${site.stateName} families, then compare quotes with a licensed local agent.`;
+const faqs = [
+  { q: 'How is this estimate calculated?', a: 'It adds up what your family would need to pay for (income replacement for the years you choose, your mortgage, other debts, education and final expenses) and subtracts the coverage and savings you already have. It is a starting point, not advice.' },
+  { q: 'Is 10 times my income enough?', a: 'It is a common rule of thumb, but it ignores your mortgage, debts, children and existing coverage. Adding those up, as this calculator does, usually gives a more realistic number.' },
+  { q: 'Does this show what my policy would cost?', a: 'No. Prices depend on your age, health, tobacco use and the insurance company. A licensed agent can compare real quotes from several carriers at no cost.' }
+];
+const crumbs = [{ name: 'Home', path: '/' }, { name: 'Life insurance calculator', path: '/life-insurance-calculator/' }];
+---
+<Base title={title} description={description} path="/life-insurance-calculator/" schema={[breadcrumbSchema(crumbs), faqSchema(faqs)].filter(Boolean)}>
+  <div class="wrap">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="/">Home</a> › <span>Life insurance calculator</span></nav>
+    <div class="layout">
+      <div>
+        <h1>How much life insurance do I need?</h1>
+        <p class="lede">Answer a few questions about what your family would need to cover. Use rough numbers; you can change them anytime. Nothing you type here is sent anywhere.</p>
+
+        <form id="calc" class="calc card" novalidate>
+          <fieldset>
+            <legend>Income</legend>
+            <label class="f"><span>Your yearly income</span><div class="money"><b>$</b><input id="income" inputmode="numeric" value="60,000" /></div></label>
+            <label class="f"><span>Years your family would need it</span><input id="years" type="number" min="0" max="40" value="10" /><small>Often until your youngest finishes school or your spouse retires.</small></label>
+          </fieldset>
+          <fieldset>
+            <legend>What you owe</legend>
+            <label class="f"><span>Mortgage balance</span><div class="money"><b>$</b><input id="mortgage" inputmode="numeric" value="250,000" /></div></label>
+            <label class="f"><span>Other debts (car, cards, loans)</span><div class="money"><b>$</b><input id="debts" inputmode="numeric" value="15,000" /></div></label>
+          </fieldset>
+          <fieldset>
+            <legend>Family plans</legend>
+            <label class="f"><span>Children to help through school</span><input id="kids" type="number" min="0" max="12" value="2" /></label>
+            <label class="f"><span>Education per child</span><div class="money"><b>$</b><input id="edu" inputmode="numeric" value="40,000" /></div><small>For reference, in-state tuition and fees for four years at a South Carolina public university is often well above this.</small></label>
+            <label class="f"><span>Funeral and final expenses</span><div class="money"><b>$</b><input id="final" inputmode="numeric" value="12,000" /></div><small>The national median funeral with viewing and burial was $8,300 in 2023 (NFDA), before other final bills.</small></label>
+          </fieldset>
+          <fieldset>
+            <legend>What you already have</legend>
+            <label class="f"><span>Life insurance you have now (work + personal)</span><div class="money"><b>$</b><input id="existing" inputmode="numeric" value="50,000" /></div><small>Work coverage often ends when you leave the job.</small></label>
+            <label class="f"><span>Savings your family could use</span><div class="money"><b>$</b><input id="savings" inputmode="numeric" value="20,000" /></div></label>
+          </fieldset>
+        </form>
+
+        <section class="result card" aria-live="polite">
+          <p class="eyebrow">Estimated coverage</p>
+          <p class="big" id="need">$0</p>
+          <div class="bars" id="bars"></div>
+          <p class="muted small" id="rule"></p>
+          <a class="btn" id="use" href="#get-started">Get quotes for this amount</a>
+          <p class="muted small">An estimate to start a conversation, not financial advice. A licensed agent can check it against your situation.</p>
+        </section>
+
+        <Faq faqs={faqs} />
+        <p><a href={`/${vertical.services[0].slug}/`}>Learn how {vertical.services[0].name.toLowerCase()} works</a> · <a href="/final-expense-insurance/">Final expense insurance</a></p>
+      </div>
+      <aside id="get-started"><div class="sticky"><LeadForm service="term-life-insurance" city={site.cities[0]?.name} /></div></aside>
+    </div>
+  </div>
+</Base>
+
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 48px; align-items: start; }
+  @media (max-width: 960px) { .layout { grid-template-columns: 1fr; } }
+  .sticky { position: sticky; top: 16px; margin-top: 28px; }
+  .lede { font-size: 1.08rem; color: var(--muted); max-width: 60ch; }
+  .calc fieldset { border: 0; padding: 0; margin: 0 0 18px; display: grid; grid-template-columns: 1fr 1fr; gap: 0 14px; }
+  .calc legend { font-weight: 700; font-size: 1.05rem; margin-bottom: 8px; grid-column: 1 / -1; }
+  @media (max-width: 560px) { .calc fieldset { grid-template-columns: 1fr; } }
+  .f { display: block; margin-bottom: 12px; min-width: 0; }
+  .f > span { display: block; font-weight: 600; font-size: .9rem; margin-bottom: 4px; }
+  .f small { display: block; color: var(--muted); font-size: .78rem; margin-top: 3px; }
+  .f input { width: 100%; font: inherit; padding: 11px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; font-variant-numeric: tabular-nums; }
+  .f input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+  .money { position: relative; }
+  .money b { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-weight: 600; }
+  .money input { padding-left: 26px; }
+  .result { margin-top: 18px; border: 2px solid var(--primary); }
+  .eyebrow { text-transform: uppercase; letter-spacing: .08em; font-size: .75rem; font-weight: 700; color: var(--primary); margin: 0; }
+  .big { font-size: clamp(2.2rem, 7vw, 3.2rem); font-weight: 800; margin: 2px 0 12px; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .bars { display: grid; gap: 6px; margin-bottom: 12px; }
+  .bar-row { display: grid; grid-template-columns: 150px 1fr 90px; gap: 10px; align-items: center; font-size: .88rem; }
+  @media (max-width: 560px) { .bar-row { grid-template-columns: 110px 1fr 76px; } }
+  .bar-row .track { height: 10px; background: var(--bg); border-radius: 999px; overflow: hidden; }
+  .bar-row .fill { height: 100%; background: var(--primary); border-radius: inherit; }
+  .bar-row.minus .fill { background: var(--accent); }
+  .bar-row .amt { text-align: right; font-variant-numeric: tabular-nums; }
+  .small { font-size: .85rem; }
+</style>
+
+<script>
+  // Plain JS. Numbers stay in the browser; only the final amount is copied
+  // into the lead form when the visitor clicks "Get quotes for this amount".
+  const ids = ['income', 'years', 'mortgage', 'debts', 'kids', 'edu', 'final', 'existing', 'savings'];
+  const $ = (id: string) => document.getElementById(id) as HTMLInputElement;
+  const num = (id: string) => Math.max(0, Number(String($(id).value).replace(/[^\d.]/g, '')) || 0);
+  const fmt = (n: number) => '$' + Math.round(n).toLocaleString('en-US');
+  let need = 0;
+
+  // Matches the "Coverage amount" options in the life insurance form.
+  const BUCKETS: [number, string][] = [
+    [25000, '$10,000 - $25,000'], [50000, '$25,000 - $50,000'], [100000, '$50,000 - $100,000'],
+    [250000, '$100,000 - $250,000'], [500000, '$250,000 - $500,000'], [1000000, '$500,000 - $1,000,000'], [Infinity, 'Over $1,000,000']
+  ];
+
+  function calc() {
+    const parts = [
+      ['Income replacement', num('income') * num('years'), false],
+      ['Mortgage', num('mortgage'), false],
+      ['Other debts', num('debts'), false],
+      ['Education', num('kids') * num('edu'), false],
+      ['Final expenses', num('final'), false],
+      ['Coverage you have', -num('existing'), true],
+      ['Savings', -num('savings'), true]
+    ] as [string, number, boolean][];
+    need = Math.max(0, parts.reduce((s, [, v]) => s + v, 0));
+    need = need > 50000 ? Math.round(need / 10000) * 10000 : Math.round(need / 1000) * 1000;
+    $('need').textContent = fmt(need);
+    const max = Math.max(1, ...parts.map(([, v]) => Math.abs(v)));
+    const bars = document.getElementById('bars')!;
+    bars.replaceChildren(...parts.filter(([, v]) => v !== 0).map(([label, v, minus]) => {
+      const row = document.createElement('div'); row.className = 'bar-row' + (minus ? ' minus' : '');
+      const l = document.createElement('span'); l.textContent = label;
+      const t = document.createElement('div'); t.className = 'track';
+      const f = document.createElement('div'); f.className = 'fill'; f.style.width = `${Math.round(Math.abs(v) / max * 100)}%`; t.append(f);
+      const a = document.createElement('span'); a.className = 'amt'; a.textContent = (minus ? '− ' : '') + fmt(Math.abs(v));
+      row.append(l, t, a); return row;
+    }));
+    const tenX = num('income') * 10;
+    document.getElementById('rule')!.textContent = tenX ? `For comparison, the "10 times income" rule of thumb would say ${fmt(tenX)}.` : '';
+    const use = document.getElementById('use')!;
+    use.textContent = need ? `Get quotes for ${fmt(need)}` : 'Get quotes';
+  }
+
+  // Format money fields with commas when the visitor leaves them.
+  document.querySelectorAll<HTMLInputElement>('.money input').forEach(inp => {
+    inp.addEventListener('blur', () => { const n = num(inp.id); inp.value = n ? n.toLocaleString('en-US') : '0'; });
+  });
+  ids.forEach(id => $(id).addEventListener('input', calc));
+  document.getElementById('calc')!.addEventListener('submit', e => e.preventDefault());
+
+  // Carry the estimate into the lead form: coverage amount, and a sensible coverage type.
+  document.getElementById('use')!.addEventListener('click', () => {
+    const form = document.getElementById('lead-form') as HTMLFormElement | null;
+    if (!form) return;
+    const amount = form.querySelector<HTMLSelectElement>('[name=coverage_amount]');
+    if (amount && need) amount.value = (BUCKETS.find(([max]) => need <= max) || BUCKETS[BUCKETS.length - 1])[1];
+    const service = form.querySelector<HTMLSelectElement>('[name=service]');
+    const reason = form.querySelector<HTMLSelectElement>('[name=coverage_reason]');
+    if (service) {
+      const mortgageShare = need ? num('mortgage') / need : 0;
+      service.value = need && need <= 50000 ? 'final-expense-insurance' : mortgageShare > 0.6 ? 'mortgage-protection-insurance' : 'term-life-insurance';
+      service.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    if (reason && !reason.value) reason.value = service?.value === 'final-expense-insurance' ? 'Cover funeral and final expenses'
+      : service?.value === 'mortgage-protection-insurance' ? 'Pay off my mortgage' : "Protect my family's income";
+  });
+
+  calc();
+</script>

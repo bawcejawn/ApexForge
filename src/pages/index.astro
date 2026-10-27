@@ -31,6 +31,9 @@ const firstSvc = vertical.services[0];
 
   <section class="wrap">
     <h2>Compare your options</h2>
+    {vertical.id === 'life-insurance' && (
+      <p><a class="btn secondary" href="/life-insurance-calculator/">Not sure how much you need? Try the 1-minute calculator</a></p>
+    )}
     <div class="grid">
       {vertical.services.map(s => (
         <a class="card svc" href={`/${s.slug}/`}>

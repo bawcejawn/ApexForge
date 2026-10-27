@@ -4,6 +4,8 @@
 
 **Plan:** CPP Holdings LLC owns the sites and the leads. Life insurance leads come to Carl. Real-estate and mortgage leads are checked automatically and delivered instantly to prepaid partners, with no calling or vetting by you. Anything no partner can take stays with you.
 
+**Day-to-day:** use your *ApexForge Launch Checklist* page on claude.ai (Today list + every task + questions). This file is the overview.
+
 Detailed click-by-click instructions with status checks are in **[SETUP-WINDOWS.md](SETUP-WINDOWS.md)**. Call scripts are in **[CALL-SCRIPTS.md](CALL-SCRIPTS.md)**. Both are also in the admin under **Guides & scripts**.
 
 ## This week — license and E&O first (deadline Oct 31)

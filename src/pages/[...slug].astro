@@ -53,6 +53,9 @@ const reviewed = c.reviewed === 'true';
         <Faq faqs={svc.faqs || []} />
 
         <section class="related">
+          {vertical.id === 'life-insurance' && (
+            <p><a href="/life-insurance-calculator/">How much coverage do you need? Use our free calculator.</a></p>
+          )}
           {otherSvcs.length > 0 && <>
             <h2>Other options in {area}</h2>
             <ul>{otherSvcs.map(o => <li><a href={o.url}>{o.s.name}{city ? ` in ${city.name}` : ''}</a></li>)}</ul>
